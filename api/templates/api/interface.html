@@ -18,13 +18,13 @@
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">🎯 Canlı Ders Programı Üretici</h2>
-        <button id="generateBtn" class="btn btn-primary btn-lg fw-bold shadow-sm">🚀 Programı Sıfırdan Oluştur</button>
+        <h2 class="fw-bold text-dark">🎯 Live Lesson Schedule Generator</h2>
+        <button id="generateBtn" class="btn btn-primary btn-lg fw-bold shadow-sm">🚀 Generate Schedule</button>
     </div>
 
     <!-- Sonuçların Dinamik Olarak Geleceği Alan -->
     <div id="tablesContainer">
-        <div class="alert alert-info text-center">Henüz program oluşturulmadı. Başlamak için yukarıdaki butona basın.</div>
+        <div class="alert alert-info text-center">Program not generated yet. Click the button above to create a new schedule.</div>
     </div>
 </div>
 
@@ -61,7 +61,7 @@ document.getElementById('generateBtn').addEventListener('click', function() {
             
             let title = document.createElement('h4');
             title.className = 'fw-bold mb-3 text-indigo text-primary';
-            title.innerText = `🏫 Sınıf: ${className}`;
+            title.innerText = `🏫 Class: ${className}`;
             card.appendChild(title);
 
             let tableResponsive = document.createElement('div');
