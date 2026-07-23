@@ -8,7 +8,6 @@ from .views import (
     TimeSlotViewSet,
     CourseRequirementViewSet,
     ScheduleViewSet,
-    SeedDataView,
     GenerateScheduleView,
     schedule_interface
 )
@@ -23,7 +22,6 @@ router.register('course-requirements', CourseRequirementViewSet, basename='cours
 router.register('schedules', ScheduleViewSet, basename='schedule')
 
 urlpatterns = [
-    path('seed-data/', SeedDataView.as_view(), name='seed-data'),
     path('generate-schedule/', GenerateScheduleView.as_view(), name='generate-schedule'),
     path('schedule/view/', schedule_interface, name='schedule_interface'),
     path('', include(router.urls)),

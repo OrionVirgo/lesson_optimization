@@ -119,10 +119,6 @@
 
             <!-- Global Actions -->
             <div class="flex items-center gap-3">
-                <button onclick="seedDemoData()" class="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-sm font-semibold border border-slate-700/60 transition-all flex items-center gap-2 hover:border-slate-500">
-                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
-                    <span>Load Sample Data</span>
-                </button>
                 <button onclick="generateSchedule()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white text-sm font-bold shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all flex items-center gap-2 transform active:scale-95">
                     <i class="fa-solid fa-bolt"></i>
                     <span>Generate Schedule</span>
@@ -497,7 +493,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const API_BASE = 'http://127.0.0.1:8000/api';
+        const API_BASE = '/api';
 
         // State Storage
         let state = {
@@ -943,7 +939,7 @@
             tbody.innerHTML = rowsHtml;
         }
 
-        // 6. GENERATE & SEED ACTIONS
+        // 6. GENERATE ACTION
         async function generateSchedule() {
             showToast('Optimization engine running...', 'info');
             try {
@@ -958,21 +954,6 @@
                 }
             } catch (err) {
                 showToast('Failed to trigger optimization engine.', 'error');
-            }
-        }
-
-        async function seedDemoData() {
-            showToast('Loading sample dataset...', 'info');
-            try {
-                const res = await fetch(`${API_BASE}/seed-data/`, { method: 'POST' });
-                if (res.ok) {
-                    showToast('Sample dataset loaded successfully.', 'success');
-                    loadAllData();
-                } else {
-                    showToast('Failed to load sample dataset.', 'error');
-                }
-            } catch (err) {
-                showToast('Server connection error.', 'error');
             }
         }
     </script>
