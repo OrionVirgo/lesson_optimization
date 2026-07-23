@@ -10,22 +10,29 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env file (check backend dir first, then parent root dir)
+env_file = BASE_DIR / '.env'
+if not env_file.exists():
+    env_file = BASE_DIR.parent / '.env'
+load_dotenv(env_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3dc98c((3e)_79o)5$tu-q_=!bk&a8ti=x&_!x_zhaj*3&db+8'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-3dc98c((3e)_79o)5$tu-q_=!bk&a8ti=x&_!x_zhaj*3&db+8')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if host.strip()]
 
 
 # Application definition
@@ -79,8 +86,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME', 'lesson_db'),       
+        'USER': os.getenv('DB_USER', 'postgres'),        
+        'PASSWORD': os.getenv('DB_PASSWORD', '1234'),   
+        'HOST': os.getenv('DB_HOST', 'localhost'),        
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 

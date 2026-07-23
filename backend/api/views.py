@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,17 +16,17 @@ class GenerateScheduleView(APIView):
                 return Response({"error": "Classrooms, Time Slots, and Course Requirements must be defined before generating a schedule."},
                                  status=status.HTTP_400_BAD_REQUEST)
 
-            Schedule.objects.all().delete()
-
             solved_schedule = generate_schedule(raw_requirements, classrooms, time_slots)
             
             if solved_schedule is None:
                 return Response({"error": "No valid schedule could be generated with the given constraints."},
                                  status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             
-            Schedule.objects.bulk_create(solved_schedule)
+            with transaction.atomic():
+                Schedule.objects.all().delete()
+                Schedule.objects.bulk_create(solved_schedule)
 
-            response_data =[]
+            response_data = []
             for item in solved_schedule:
                 response_data.append({
                     "school_class": item.school_class.name,
@@ -33,7 +34,8 @@ class GenerateScheduleView(APIView):
                     "teacher": item.teacher.name,
                     "classroom": item.classroom.name,
                     "day": item.time_slot.day,
-                    "hour": item.time_slot.hour
+                    "hour": item.time_slot.hour,
+                    "is_lab": item.classroom.is_lab
                 })
             return Response({"message": "Schedule generated successfully.", "schedule": response_data}, 
                             status=status.HTTP_201_CREATED)
