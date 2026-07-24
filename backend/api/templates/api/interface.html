@@ -164,14 +164,7 @@
             <!-- Filter Bar -->
             <div class="no-print glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 border border-slate-800">
                 <div class="flex items-center gap-3 flex-wrap">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">View Mode:</span>
-                    <select id="filter-type" onchange="renderTimetable()" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-xl px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                        <option value="class">By Class</option>
-                        <option value="teacher">By Teacher</option>
-                        <option value="classroom">By Classroom</option>
-                    </select>
-
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-2">Target:</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Select Class:</span>
                     <select id="filter-target" onchange="renderTimetable()" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold">
                         <!-- Populated via JS -->
                     </select>
@@ -858,20 +851,11 @@
 
         // 5. TIMETABLE GRID RENDER LOGIC
         function updateFilterOptions() {
-            const type = document.getElementById('filter-type').value;
             const target = document.getElementById('filter-target');
-
-            if (type === 'class') {
-                target.innerHTML = state.classes.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            } else if (type === 'teacher') {
-                target.innerHTML = state.teachers.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
-            } else if (type === 'classroom') {
-                target.innerHTML = state.classrooms.map(cr => `<option value="${cr.name}">${cr.name}</option>`).join('');
-            }
+            target.innerHTML = state.classes.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
         }
 
         function renderTimetable() {
-            const type = document.getElementById('filter-type').value;
             const target = document.getElementById('filter-target').value;
             const tbody = document.getElementById('timetable-body');
             const statsText = document.getElementById('stats-text');
@@ -887,16 +871,11 @@
             // Title update
             document.getElementById('timetable-title').innerHTML = `
                 <i class="fa-solid fa-table-cells text-brand-400"></i>
-                <span>${target || 'Schedule'} Matrix</span>
+                <span>${target || 'Class'} Schedule Matrix</span>
             `;
 
-            // Filter schedules for target
-            const filtered = state.schedules.filter(s => {
-                if (type === 'class') return s.school_class_name === target;
-                if (type === 'teacher') return s.teacher_name === target;
-                if (type === 'classroom') return s.classroom_name === target;
-                return true;
-            });
+            // Filter schedules for class target
+            const filtered = state.schedules.filter(s => s.school_class_name === target);
 
             // Hours 1 to 8
             let rowsHtml = '';
