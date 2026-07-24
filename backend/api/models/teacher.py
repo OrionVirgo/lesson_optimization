@@ -1,6 +1,7 @@
 from django.db import models
 from .base_model import BaseModel
 
+
 class Teacher(BaseModel):
     Days_Of_Week = [
         ('Monday', 'Monday'),

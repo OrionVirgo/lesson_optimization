@@ -1,7 +1,10 @@
 from django.db import models
 from django.conf import settings
+import uuid
 
 class BaseModel(models.Model):
+
+    id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False, verbose_name="ID")
     is_active = models.BooleanField(default=True, verbose_name="Is Active")
     is_deleted = models.BooleanField(default=False, verbose_name="Is Deleted")
     deleted_at = models.DateTimeField(null=True, blank=True, verbose_name="Deleted At")
