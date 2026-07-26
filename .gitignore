@@ -2,8 +2,9 @@ venv/
 .venv/
 env/
 .env
+.env.example
+*.example
 db.sqlite3
 __pycache__/
 *.pyc
 .vscode/
-.env.example
