@@ -6,6 +6,7 @@ from .classroom import Classroom
 from .time_slot import TimeSlot
 from .course_requirement import CourseRequirement
 from .schedule import Schedule
+from .user import User
 
 __all__ = [
     'BaseModel',
@@ -16,4 +17,5 @@ __all__ = [
     'TimeSlot',
     'CourseRequirement',
     'Schedule',
+    'User',
 ]

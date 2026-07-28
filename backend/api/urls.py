@@ -22,6 +22,7 @@ router.register('course-requirements', CourseRequirementViewSet, basename='cours
 router.register('schedules', ScheduleViewSet, basename='schedule')
 
 urlpatterns = [
+    path('auth/', include('api.auth.urls')),
     path('generate-schedule/', GenerateScheduleView.as_view(), name='generate-schedule'),
     path('schedule/view/', schedule_interface, name='schedule_interface'),
     path('', include(router.urls)),
