@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lesson Scheduling & Optimization System</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -37,7 +35,6 @@
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -99,17 +96,13 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
 
-    <!-- LOGIN SECTION -->
     <div id="login-section" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl p-4 transition-all duration-500">
         <div class="glass-card max-w-md w-full rounded-3xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col gap-6">
-            <!-- Ambient Glow -->
             <div class="absolute -top-24 -left-24 w-48 h-48 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-            <!-- Header -->
             <div class="text-center flex flex-col items-center gap-3">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-xl shadow-brand-500/30">
                     <i class="fa-solid fa-user-lock text-3xl text-white"></i>
@@ -120,7 +113,6 @@
                 </div>
             </div>
 
-            <!-- Form -->
             <form id="login-form" onsubmit="handleLogin(event)" class="flex flex-col gap-4">
                 <div id="login-error" class="hidden p-3 rounded-xl bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs font-semibold flex items-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -159,7 +151,6 @@
         </div>
     </div>
 
-    <!-- Header / Navbar -->
     <header class="no-print sticky top-0 z-40 glass-card border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -174,7 +165,6 @@
                 </div>
             </div>
 
-            <!-- Global Actions -->
             <div class="flex items-center gap-3">
                 <div id="user-badge" class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 text-xs font-medium">
                     <i class="fa-solid fa-circle-user text-brand-400 text-sm"></i>
@@ -195,10 +185,8 @@
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
         
-        <!-- Navigation Tabs -->
         <div class="no-print glass-card p-1.5 rounded-2xl flex flex-wrap gap-1 border border-slate-800 bg-slate-900/60">
             <button onclick="switchTab('timetable')" id="tab-timetable" class="tab-btn flex-1 min-w-[140px] px-4 py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 text-white bg-brand-600 shadow-md">
                 <i class="fa-solid fa-calendar-week"></i>
@@ -222,16 +210,11 @@
             </button>
         </div>
 
-        <!-- Dynamic Content Sections -->
-        
-        <!-- SECTION 1: TIMETABLE GRID -->
         <section id="sec-timetable" class="flex flex-col gap-6">
-            <!-- Filter Bar -->
             <div class="no-print glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 border border-slate-800">
                 <div class="flex items-center gap-3 flex-wrap">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Select Class:</span>
                     <select id="filter-target" onchange="renderTimetable()" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold">
-                        <!-- Populated via JS -->
                     </select>
                 </div>
 
@@ -241,7 +224,6 @@
                 </div>
             </div>
 
-            <!-- Timetable Matrix Card -->
             <div class="glass-card rounded-2xl p-6 border border-slate-800 shadow-2xl overflow-hidden printable-grid">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-4">
                     <div>
@@ -261,7 +243,6 @@
                     </div>
                 </div>
 
-                <!-- Grid Table -->
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full border-collapse min-w-[700px] text-center">
                         <thead>
@@ -275,14 +256,12 @@
                             </tr>
                         </thead>
                         <tbody id="timetable-body" class="divide-y divide-slate-800/60">
-                            <!-- Populated via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 2: TEACHERS MANAGEMENT -->
         <section id="sec-teachers" class="hidden flex flex-col gap-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -306,15 +285,12 @@
                         </tr>
                     </thead>
                     <tbody id="teachers-table-body" class="divide-y divide-slate-800 text-sm text-slate-300">
-                        <!-- Populated via JS -->
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- SECTION 3: CLASSES & CLASSROOMS -->
         <section id="sec-classes" class="hidden flex flex-col gap-8">
-            <!-- Classes Grid -->
             <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center">
                     <div>
@@ -327,11 +303,9 @@
                     </button>
                 </div>
                 <div id="classes-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Populated via JS -->
                 </div>
             </div>
 
-            <!-- Classrooms Grid -->
             <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center">
                     <div>
@@ -344,14 +318,11 @@
                     </button>
                 </div>
                 <div id="classrooms-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Populated via JS -->
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 4: COURSES & REQUIREMENTS -->
         <section id="sec-courses" class="hidden flex flex-col gap-8">
-            <!-- Courses List -->
             <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center">
                     <div>
@@ -364,11 +335,9 @@
                     </button>
                 </div>
                 <div id="courses-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <!-- Populated via JS -->
                 </div>
             </div>
 
-            <!-- Requirements Table -->
             <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center">
                     <div>
@@ -392,14 +361,12 @@
                             </tr>
                         </thead>
                         <tbody id="requirements-table-body" class="divide-y divide-slate-800 text-sm text-slate-300">
-                            <!-- Populated via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 5: TIME SLOTS -->
         <section id="sec-timeslots" class="hidden flex flex-col gap-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -414,16 +381,12 @@
 
             <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 p-6">
                 <div id="timeslots-grid" class="grid grid-cols-1 sm:grid-cols-5 gap-4">
-                    <!-- Populated via JS -->
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- MODALS -->
-
-    <!-- Modal Teacher -->
     <div id="modal-teacher" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -452,7 +415,6 @@
         </div>
     </div>
 
-    <!-- Modal Class -->
     <div id="modal-class" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -471,7 +433,6 @@
         </div>
     </div>
 
-    <!-- Modal Classroom -->
     <div id="modal-classroom" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -494,7 +455,6 @@
         </div>
     </div>
 
-    <!-- Modal Course -->
     <div id="modal-course" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -517,7 +477,6 @@
         </div>
     </div>
 
-    <!-- Modal Requirement -->
     <div id="modal-requirement" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -548,12 +507,9 @@
         </div>
     </div>
 
-
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         const API_BASE = '/api';
 
-        // State Storage
         let state = {
             teachers: [],
             classes: [],
@@ -575,7 +531,6 @@
             return headers;
         }
 
-        // Authentication Management
         async function checkAuth() {
             const token = localStorage.getItem('access_token');
             const loginSec = document.getElementById('login-section');
@@ -666,12 +621,10 @@
             }
         }
 
-        // Init App
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
         });
 
-        // Toast Notification System
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -698,7 +651,6 @@
             }, 4000);
         }
 
-        // Tab Switching
         function switchTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-brand-600', 'text-white', 'shadow-md');
@@ -715,7 +667,6 @@
             if (tabName === 'timetable') renderTimetable();
         }
 
-        // Modal Helpers
         function openModal(id) {
             if (id === 'modal-requirement') populateRequirementSelects();
             document.getElementById(id).classList.remove('hidden');
@@ -725,7 +676,6 @@
             document.getElementById(id).classList.add('hidden');
         }
 
-        // Load All Data
         async function loadAllData() {
             try {
                 const headers = getAuthHeaders();
@@ -759,7 +709,6 @@
             }
         }
 
-        // 1. TEACHERS RENDER & ACTIONS
         function renderTeachers() {
             const tbody = document.getElementById('teachers-table-body');
             if (state.teachers.length === 0) {
@@ -812,7 +761,6 @@
             }
         }
 
-        // 2. CLASSES & CLASSROOMS RENDER & ACTIONS
         function renderClassesAndClassrooms() {
             const clContainer = document.getElementById('classes-list');
             if (state.classes.length === 0) {
@@ -859,7 +807,6 @@
             await fetchPost('classrooms', { name, is_lab }, 'Classroom added', 'modal-classroom');
         }
 
-        // 3. COURSES & REQUIREMENTS RENDER & ACTIONS
         function renderCoursesAndRequirements() {
             const coContainer = document.getElementById('courses-list');
             if (state.courses.length === 0) {
@@ -929,7 +876,6 @@
             await fetchPost('course-requirements', { school_class, course, teacher, weekly_hours }, 'Course assignment created', 'modal-requirement');
         }
 
-        // 4. TIMESLOTS RENDER & ACTIONS
         function renderTimeSlots() {
             const container = document.getElementById('timeslots-grid');
             if (state.timeslots.length === 0) {
@@ -959,7 +905,6 @@
 
         async function generateDefaultTimeSlots() {
             try {
-                // Clear existing
                 for (let ts of state.timeslots) {
                     await fetch(`${API_BASE}/time-slots/${ts.id}/`, {
                         method: 'DELETE',
@@ -967,7 +912,6 @@
                     });
                 }
 
-                // Add 40 default slots
                 for (let day of dayKeys) {
                     for (let hour = 1; hour <= 8; hour++) {
                         await fetch(`${API_BASE}/time-slots/`, {
@@ -984,7 +928,6 @@
             }
         }
 
-        // Generic Post / Delete Helpers
         async function fetchPost(endpoint, data, successMsg, modalId) {
             try {
                 const res = await fetch(`${API_BASE}/${endpoint}/`, {
@@ -1021,7 +964,6 @@
             }
         }
 
-        // 5. TIMETABLE GRID RENDER LOGIC
         function updateFilterOptions() {
             const target = document.getElementById('filter-target');
             target.innerHTML = state.classes.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
@@ -1040,16 +982,13 @@
 
             statsText.innerText = `Total ${state.schedules.length} Lesson Assignments Successfully Scheduled`;
 
-            // Title update
             document.getElementById('timetable-title').innerHTML = `
                 <i class="fa-solid fa-table-cells text-brand-400"></i>
                 <span>${target || 'Class'} Schedule Matrix</span>
             `;
 
-            // Filter schedules for class target
             const filtered = state.schedules.filter(s => s.school_class_name === target);
 
-            // Hours 1 to 8
             let rowsHtml = '';
             for (let hour = 1; hour <= 8; hour++) {
                 rowsHtml += `<tr class="border-b border-slate-800/60">`;
@@ -1090,7 +1029,6 @@
             tbody.innerHTML = rowsHtml;
         }
 
-        // 6. GENERATE ACTION
         async function generateSchedule() {
             showToast('Optimization engine running...', 'info');
             try {
@@ -1113,3 +1051,4 @@
     </script>
 </body>
 </html>
+
