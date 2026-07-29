@@ -93,4 +93,4 @@ class GenerateScheduleView(APIView):
             )
 
 def schedule_interface(request):
-    return render(request, 'api/interface.html')
+    return render(request, 'interface.html')

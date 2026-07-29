@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lesson Scheduling & Optimization System (Vue 3 Standalone)</title>
+    <title>Lesson Scheduling & Optimization System (Vue 3 Modular Frontend)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -55,27 +55,15 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.5);
-            border-radius: 4px;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
     <div id="app" v-cloak class="min-h-screen flex flex-col">
 
-        <!-- Toast Notifications -->
         <div class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none">
             <div v-for="toast in toasts" :key="toast.id"
-                 class="glass-card border p-4 rounded-xl shadow-xl flex items-center gap-3 text-sm font-semibold pointer-events-auto"
+                 class="glass-card border p-4 rounded-xl shadow-xl flex items-center gap-3 text-sm font-semibold pointer-events-auto transition-all duration-300"
                  :class="{
                      'bg-emerald-900/90 border-emerald-500 text-emerald-200': toast.type === 'success',
                      'bg-rose-900/90 border-rose-500 text-rose-200': toast.type === 'error',
@@ -90,20 +78,19 @@
             </div>
         </div>
 
-        <!-- LOGIN SECTION -->
         <div v-if="!isLoggedIn" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl p-4">
-            <div class="glass-card max-w-md w-full rounded-3xl p-8 border border-slate-800 shadow-2xl flex flex-col gap-6">
+            <div class="glass-card max-w-md w-full rounded-3xl p-8 border border-slate-800 shadow-2xl flex flex-col gap-6 relative overflow-hidden">
                 <div class="text-center flex flex-col items-center gap-3">
                     <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-xl">
                         <i class="fa-solid fa-user-lock text-3xl text-white"></i>
                     </div>
                     <div>
-                        <h2 class="font-display font-bold text-2xl text-white tracking-tight">Vue 3 Frontend</h2>
-                        <p class="text-xs text-slate-400 mt-1">Log in to Lesson Optimization System</p>
+                        <h2 class="font-display font-bold text-2xl text-white tracking-tight">User Authentication</h2>
+                        <p class="text-xs text-slate-400 mt-1">Lesson Scheduling & Optimization System</p>
                     </div>
                 </div>
 
-                <form @submit.prevent="handleLogin" class="flex flex-col gap-4">
+                <form @submit.prevent="handleLoginSubmit" class="flex flex-col gap-4">
                     <div v-if="loginError" class="p-3 rounded-xl bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs font-semibold flex items-center gap-2">
                         <i class="fa-solid fa-circle-exclamation"></i>
                         <span>{{ loginError }}</span>
@@ -111,100 +98,310 @@
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Username</label>
-                        <input v-model="loginForm.username" type="text" required placeholder="Username" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                        <input v-model="loginForm.username" type="text" required placeholder="Enter username" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Password</label>
-                        <input v-model="loginForm.password" type="password" required placeholder="Password" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                        <input v-model="loginForm.password" type="password" required placeholder="Enter password" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
                     </div>
 
-                    <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-sm shadow-lg">
-                        Log In
+                    <button type="submit" class="mt-2 w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-sm shadow-lg">
+                        <span>Log In</span>
                     </button>
                 </form>
             </div>
         </div>
 
-        <!-- MAIN APP -->
         <template v-else>
-            <header class="sticky top-0 z-40 glass-card border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-                <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-600 to-purple-500 flex items-center justify-center">
-                            <i class="fa-solid fa-calendar-days text-2xl text-white"></i>
-                        </div>
-                        <div>
-                            <h1 class="font-display font-bold text-xl text-white">
-                                Vue 3 <span class="gradient-text font-extrabold">Frontend</span>
-                            </h1>
-                            <p class="text-xs text-slate-400">Lesson Optimization System</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs text-slate-300">User: <strong class="text-white">{{ user?.username }}</strong></span>
-                        <button @click="handleLogout" class="p-2 px-3 rounded-xl bg-rose-500/10 text-rose-300 text-xs font-semibold">Log Out</button>
-                    </div>
-                </div>
-            </header>
+            <header-nav
+                :user="user"
+                v-model:active-tab="activeTab"
+                @generate-schedule="onGenerateSchedule"
+                @logout="onLogout"
+            ></header-nav>
 
-            <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
-                <div class="glass-card p-6 rounded-2xl border border-slate-800 text-center">
-                    <h2 class="text-xl font-bold text-white mb-2">Vue 3 Standalone App Operational</h2>
-                    <p class="text-sm text-slate-400">Integrated with Django API Backend at {{ apiBase }}</p>
-                </div>
+            <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <timetable-matrix
+                    v-if="activeTab === 'timetable'"
+                    :classes="state.classes"
+                    :schedules="state.schedules"
+                    :day-keys="dayKeys"
+                    v-model:selected-class="selectedClass"
+                ></timetable-matrix>
+
+                <teacher-manager
+                    v-if="activeTab === 'teachers'"
+                    :teachers="state.teachers"
+                    :day-keys="dayKeys"
+                    @add-teacher="onAddTeacher"
+                    @delete-teacher="onDeleteTeacher"
+                ></teacher-manager>
+
+                <class-manager
+                    v-if="activeTab === 'classes'"
+                    :classes="state.classes"
+                    :classrooms="state.classrooms"
+                    @add-class="onAddClass"
+                    @delete-class="onDeleteClass"
+                    @add-classroom="onAddClassroom"
+                    @delete-classroom="onDeleteClassroom"
+                ></class-manager>
+
+                <course-manager
+                    v-if="activeTab === 'courses'"
+                    :courses="state.courses"
+                    :requirements="state.requirements"
+                    :classes="state.classes"
+                    :teachers="state.teachers"
+                    @add-course="onAddCourse"
+                    @delete-course="onDeleteCourse"
+                    @add-requirement="onAddRequirement"
+                    @delete-requirement="onDeleteRequirement"
+                ></course-manager>
+
+                <time-slot-manager
+                    v-if="activeTab === 'timeslots'"
+                    :timeslots="state.timeslots"
+                    :day-keys="dayKeys"
+                    @generate-default-slots="onGenerateDefaultSlots"
+                ></time-slot-manager>
             </main>
         </template>
 
     </div>
 
-    <script>
+    <script type="module">
+        import { login, getMe, fetchAllData, createItem, deleteItem, generateDefaultSlots, triggerScheduleGeneration } from './src/api/client.js';
+        import { HeaderNav } from './src/components/HeaderNav.js';
+        import { TeacherManager } from './src/views/TeacherManager.js';
+        import { ClassManager } from './src/views/ClassManager.js';
+        import { CourseManager } from './src/views/CourseManager.js';
+        import { TimeSlotManager } from './src/views/TimeSlotManager.js';
+        import { TimetableMatrix } from './src/views/TimetableMatrix.js';
+
         const { createApp, ref, reactive, onMounted } = Vue;
 
         createApp({
+            components: {
+                HeaderNav,
+                TeacherManager,
+                ClassManager,
+                CourseManager,
+                TimeSlotManager,
+                TimetableMatrix
+            },
             setup() {
-                const apiBase = ref('/api');
+                const dayKeys = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
                 const isLoggedIn = ref(false);
                 const user = ref(null);
-                const loginForm = reactive({ username: '', password: '' });
-                const loginError = ref('');
+                const activeTab = ref('timetable');
+                const selectedClass = ref('');
                 const toasts = ref([]);
 
+                const loginForm = reactive({ username: '', password: '' });
+                const loginError = ref('');
+
+                const state = reactive({
+                    teachers: [],
+                    classes: [],
+                    classrooms: [],
+                    courses: [],
+                    requirements: [],
+                    timeslots: [],
+                    schedules: []
+                });
+
                 const showToast = (message, type = 'info') => {
-                    const id = Date.now();
+                    const id = Date.now() + Math.random();
                     toasts.value.push({ id, message, type });
-                    setTimeout(() => toasts.value = toasts.value.filter(t => t.id !== id), 4000);
+                    setTimeout(() => {
+                        toasts.value = toasts.value.filter(t => t.id !== id);
+                    }, 4000);
                 };
 
-                const handleLogin = async () => {
-                    loginError.value = '';
-                    try {
-                        const res = await fetch(`${apiBase.value}/auth/login/`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(loginForm)
-                        });
-                        const data = await res.json();
-                        if (res.ok) {
-                            localStorage.setItem('access_token', data.access);
-                            isLoggedIn.value = true;
-                            user.value = data.user;
-                            showToast('Logged in successfully', 'success');
-                        } else {
-                            loginError.value = data.error || 'Login failed.';
-                        }
-                    } catch (e) {
-                        loginError.value = 'Failed to connect to authentication server.';
+                const checkAuth = async () => {
+                    const res = await getMe();
+                    if (res.ok) {
+                        user.value = res.data;
+                        isLoggedIn.value = true;
+                        loadData();
+                    } else {
+                        onLogout(false);
                     }
                 };
 
-                const handleLogout = () => {
-                    localStorage.removeItem('access_token');
-                    isLoggedIn.value = false;
-                    user.value = null;
+                const handleLoginSubmit = async () => {
+                    loginError.value = '';
+                    const res = await login(loginForm.username, loginForm.password);
+                    if (res.ok) {
+                        localStorage.setItem('access_token', res.data.access);
+                        localStorage.setItem('refresh_token', res.data.refresh);
+                        showToast(`Welcome back, ${res.data.user.username}!`, 'success');
+                        checkAuth();
+                    } else {
+                        loginError.value = res.data.error || 'Login failed.';
+                    }
                 };
 
-                return { apiBase, isLoggedIn, user, loginForm, loginError, toasts, handleLogin, handleLogout };
+                const onLogout = (notify = true) => {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    isLoggedIn.value = false;
+                    user.value = null;
+                    if (notify) showToast('Logged out successfully.', 'info');
+                };
+
+                const loadData = async () => {
+                    try {
+                        const data = await fetchAllData();
+                        state.teachers = data.teachers;
+                        state.classes = data.classes;
+                        state.classrooms = data.classrooms;
+                        state.courses = data.courses;
+                        state.requirements = data.requirements;
+                        state.timeslots = data.timeslots;
+                        state.schedules = data.schedules;
+
+                        if (state.classes.length > 0 && !selectedClass.value) {
+                            selectedClass.value = state.classes[0].name;
+                        }
+                    } catch (e) {
+                        showToast('Error loading system data', 'error');
+                    }
+                };
+
+                const onAddTeacher = async (payload) => {
+                    const res = await createItem('teachers', payload);
+                    if (res.ok) {
+                        showToast('Teacher added successfully.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onDeleteTeacher = async (id) => {
+                    const res = await deleteItem('teachers', id);
+                    if (res.ok) {
+                        showToast('Teacher deleted.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onAddClass = async (payload) => {
+                    const res = await createItem('school-classes', payload);
+                    if (res.ok) {
+                        showToast('Class added.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onDeleteClass = async (id) => {
+                    const res = await deleteItem('school-classes', id);
+                    if (res.ok) {
+                        showToast('Class deleted.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onAddClassroom = async (payload) => {
+                    const res = await createItem('classrooms', payload);
+                    if (res.ok) {
+                        showToast('Classroom added.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onDeleteClassroom = async (id) => {
+                    const res = await deleteItem('classrooms', id);
+                    if (res.ok) {
+                        showToast('Classroom deleted.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onAddCourse = async (payload) => {
+                    const res = await createItem('courses', payload);
+                    if (res.ok) {
+                        showToast('Course added.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onDeleteCourse = async (id) => {
+                    const res = await deleteItem('courses', id);
+                    if (res.ok) {
+                        showToast('Course deleted.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onAddRequirement = async (payload) => {
+                    const res = await createItem('course-requirements', payload);
+                    if (res.ok) {
+                        showToast('Course assignment created.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onDeleteRequirement = async (id) => {
+                    const res = await deleteItem('course-requirements', id);
+                    if (res.ok) {
+                        showToast('Assignment deleted.', 'success');
+                        loadData();
+                    }
+                };
+
+                const onGenerateDefaultSlots = async () => {
+                    try {
+                        await generateDefaultSlots(state.timeslots, dayKeys);
+                        showToast('Generated 40 weekly time slots.', 'success');
+                        loadData();
+                    } catch (e) {
+                        showToast('Failed to generate slots.', 'error');
+                    }
+                };
+
+                const onGenerateSchedule = async () => {
+                    showToast('Optimization engine running...', 'info');
+                    const res = await triggerScheduleGeneration();
+                    if (res.ok) {
+                        showToast('Conflict-free schedule generated successfully!', 'success');
+                        loadData();
+                    } else {
+                        showToast(res.data.error || 'Failed to generate schedule.', 'error');
+                    }
+                };
+
+                onMounted(() => {
+                    checkAuth();
+                });
+
+                return {
+                    dayKeys,
+                    isLoggedIn,
+                    user,
+                    activeTab,
+                    selectedClass,
+                    toasts,
+                    loginForm,
+                    loginError,
+                    state,
+                    handleLoginSubmit,
+                    onLogout,
+                    onAddTeacher,
+                    onDeleteTeacher,
+                    onAddClass,
+                    onDeleteClass,
+                    onAddClassroom,
+                    onDeleteClassroom,
+                    onAddCourse,
+                    onDeleteCourse,
+                    onAddRequirement,
+                    onDeleteRequirement,
+                    onGenerateDefaultSlots,
+                    onGenerateSchedule
+                };
             }
         }).mount('#app');
     </script>

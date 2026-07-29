@@ -1,0 +1,27 @@
+<section id="sec-teachers" class="hidden flex flex-col gap-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-display font-bold text-white">Teacher Management</h2>
+            <p class="text-sm text-slate-400">Manage teaching staff and weekly off-days</p>
+        </div>
+        <button onclick="openModal('modal-teacher')" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-500/20">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add New Teacher</span>
+        </button>
+    </div>
+
+    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-900/80 text-xs uppercase font-bold text-slate-400 border-b border-slate-800">
+                <tr>
+                    <th class="py-3.5 px-6">ID</th>
+                    <th class="py-3.5 px-6">Teacher Name</th>
+                    <th class="py-3.5 px-6">Off-Day</th>
+                    <th class="py-3.5 px-6 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="teachers-table-body" class="divide-y divide-slate-800 text-sm text-slate-300">
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,31 @@
+<section id="sec-classes" class="hidden flex flex-col gap-8">
+    <div class="flex flex-col gap-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-display font-bold text-white">Classes</h2>
+                <p class="text-xs text-slate-400">Active student classes (e.g. Grade 9-A)</p>
+            </div>
+            <button onclick="openModal('modal-class')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-semibold transition-all flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Class</span>
+            </button>
+        </div>
+        <div id="classes-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-display font-bold text-white">Classrooms & Laboratories</h2>
+                <p class="text-xs text-slate-400">Physical rooms and laboratory facilities</p>
+            </div>
+            <button onclick="openModal('modal-classroom')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-semibold transition-all flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Classroom</span>
+            </button>
+        </div>
+        <div id="classrooms-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        </div>
+    </div>
+</section>
