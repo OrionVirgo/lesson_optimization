@@ -1,16 +1,37 @@
-<section id="sec-courses" class="hidden flex flex-col gap-8">
+{% verbatim %}
+<section v-show="activeTab === 'courses'" class="flex flex-col gap-8">
     <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="text-xl font-display font-bold text-white">Course Definitions</h2>
                 <p class="text-xs text-slate-400">Curriculum subjects and lab requirements</p>
             </div>
-            <button onclick="openModal('modal-course')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-semibold transition-all flex items-center gap-2">
+            <button @click="openModal('course')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-semibold transition-all flex items-center gap-2">
                 <i class="fa-solid fa-plus"></i>
                 <span>Add Course</span>
             </button>
         </div>
-        <div id="courses-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div v-if="state.courses.length === 0" class="col-span-full py-8 text-center text-slate-500 italic border border-dashed border-slate-800 rounded-2xl">
+                No courses defined.
+            </div>
+            <div v-for="course in state.courses" :key="course.id" class="glass-card p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-base">{{ course.name }}</h4>
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                              :class="course.is_lab_required ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20' : 'bg-slate-800 text-slate-400'">
+                            {{ course.is_lab_required ? 'Lab Required' : 'Standard Classroom' }}
+                        </span>
+                    </div>
+                </div>
+                <button @click="deleteItem('courses', course.id)" class="p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -20,7 +41,7 @@
                 <h2 class="text-xl font-display font-bold text-white">Course Assignments</h2>
                 <p class="text-xs text-slate-400">Pair Class + Course + Teacher + Weekly Hours</p>
             </div>
-            <button onclick="openModal('modal-requirement')" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-500/20">
+            <button @click="openModal('requirement')" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-500/20">
                 <i class="fa-solid fa-plus"></i>
                 <span>Assign Course</span>
             </button>
@@ -36,9 +57,29 @@
                         <th class="py-3.5 px-6 text-right">Action</th>
                     </tr>
                 </thead>
-                <tbody id="requirements-table-body" class="divide-y divide-slate-800 text-sm text-slate-300">
+                <tbody class="divide-y divide-slate-800 text-sm text-slate-300">
+                    <tr v-if="state.requirements.length === 0">
+                        <td colspan="5" class="py-8 text-center text-slate-500 italic">No course assignments added yet.</td>
+                    </tr>
+                    <tr v-for="req in state.requirements" :key="req.id" class="hover:bg-slate-800/30 transition-colors">
+                        <td class="py-3.5 px-6 font-bold text-white">{{ req.school_class_name }}</td>
+                        <td class="py-3.5 px-6 font-semibold text-brand-300">{{ req.course_name }}</td>
+                        <td class="py-3.5 px-6 text-slate-300">{{ req.teacher_name }}</td>
+                        <td class="py-3.5 px-6">
+                            <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-slate-800 border border-slate-700 text-slate-200">
+                                {{ req.weekly_hours }} hrs / week
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-6 text-right">
+                            <button @click="deleteItem('course-requirements', req.id)" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-semibold transition-all flex items-center gap-1.5 ml-auto">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Delete</span>
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </section>
+{% endverbatim %}

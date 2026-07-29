@@ -9,6 +9,7 @@ class User(AbstractUser):
         db_table = 'api_user'
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+        app_label = 'api'
 
     def __str__(self):
         return self.username
