@@ -37,6 +37,7 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         [v-cloak] { display: none !important; }
         body {
@@ -689,13 +690,11 @@
                     const token = localStorage.getItem('access_token');
                     if (token) {
                         try {
-                            const res = await fetch(`${API_BASE}/auth/me/`, { headers: getAuthHeaders() });
-                            if (res.ok) {
-                                user.value = await res.json();
-                                isLoggedIn.value = true;
-                                loadAllData();
-                                return;
-                            }
+                            const res = await axios.get(`${API_BASE}/auth/me/`, { headers: getAuthHeaders() });
+                            user.value = res.data;
+                            isLoggedIn.value = true;
+                            loadAllData();
+                            return;
                         } catch (e) {}
                     }
                     handleLogout(false);
@@ -708,22 +707,14 @@
                         return;
                     }
                     try {
-                        const res = await fetch(`${API_BASE}/auth/login/`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(loginForm)
-                        });
-                        const data = await res.json();
-                        if (res.ok) {
-                            localStorage.setItem('access_token', data.access);
-                            localStorage.setItem('refresh_token', data.refresh);
-                            showToast(`Welcome back, ${data.user.username}!`, 'success');
-                            checkAuth();
-                        } else {
-                            loginError.value = data.error || 'Login failed.';
-                        }
+                        const res = await axios.post(`${API_BASE}/auth/login/`, loginForm);
+                        const data = res.data;
+                        localStorage.setItem('access_token', data.access);
+                        localStorage.setItem('refresh_token', data.refresh);
+                        showToast(`Welcome back, ${data.user.username}!`, 'success');
+                        checkAuth();
                     } catch (e) {
-                        loginError.value = 'Failed to connect to authentication server.';
+                        loginError.value = e.response?.data?.error || 'Login failed.';
                     }
                 };
 
@@ -737,24 +728,24 @@
 
                 const loadAllData = async () => {
                     try {
-                        const headers = getAuthHeaders();
+                        const config = { headers: getAuthHeaders() };
                         const [tRes, clRes, crRes, coRes, reqRes, tsRes, schRes] = await Promise.all([
-                            fetch(`${API_BASE}/teachers/`, { headers }),
-                            fetch(`${API_BASE}/school-classes/`, { headers }),
-                            fetch(`${API_BASE}/classrooms/`, { headers }),
-                            fetch(`${API_BASE}/courses/`, { headers }),
-                            fetch(`${API_BASE}/course-requirements/`, { headers }),
-                            fetch(`${API_BASE}/time-slots/`, { headers }),
-                            fetch(`${API_BASE}/schedules/`, { headers })
+                            axios.get(`${API_BASE}/teachers/`, config),
+                            axios.get(`${API_BASE}/school-classes/`, config),
+                            axios.get(`${API_BASE}/classrooms/`, config),
+                            axios.get(`${API_BASE}/courses/`, config),
+                            axios.get(`${API_BASE}/course-requirements/`, config),
+                            axios.get(`${API_BASE}/time-slots/`, config),
+                            axios.get(`${API_BASE}/schedules/`, config)
                         ]);
 
-                        state.teachers = await tRes.json();
-                        state.classes = await clRes.json();
-                        state.classrooms = await crRes.json();
-                        state.courses = await coRes.json();
-                        state.requirements = await reqRes.json();
-                        state.timeslots = await tsRes.json();
-                        state.schedules = await schRes.json();
+                        state.teachers = tRes.data;
+                        state.classes = clRes.data;
+                        state.classrooms = crRes.data;
+                        state.courses = coRes.data;
+                        state.requirements = reqRes.data;
+                        state.timeslots = tsRes.data;
+                        state.schedules = schRes.data;
 
                         if (state.classes.length > 0 && !filterTargetClass.value) {
                             filterTargetClass.value = state.classes[0].name;
@@ -766,35 +757,26 @@
 
                 const fetchPost = async (endpoint, data, successMsg) => {
                     try {
-                        const res = await fetch(`${API_BASE}/${endpoint}/`, {
-                            method: 'POST',
-                            headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
-                            body: JSON.stringify(data)
+                        await axios.post(`${API_BASE}/${endpoint}/`, data, {
+                            headers: getAuthHeaders()
                         });
-                        if (res.ok) {
-                            showToast(successMsg, 'success');
-                            closeModal();
-                            loadAllData();
-                        } else {
-                            const err = await res.json();
-                            showToast(err.error || 'Operation failed.', 'error');
-                        }
+                        showToast(successMsg, 'success');
+                        closeModal();
+                        loadAllData();
                     } catch (e) {
-                        showToast('Server connection error.', 'error');
+                        const errMsg = e.response?.data?.error || 'Operation failed.';
+                        showToast(errMsg, 'error');
                     }
                 };
 
                 const deleteItem = async (endpoint, id) => {
                     if (!confirm('Are you sure you want to delete this item?')) return;
                     try {
-                        const res = await fetch(`${API_BASE}/${endpoint}/${id}/`, {
-                            method: 'DELETE',
+                        await axios.delete(`${API_BASE}/${endpoint}/${id}/`, {
                             headers: getAuthHeaders()
                         });
-                        if (res.ok) {
-                            showToast('Item deleted.', 'success');
-                            loadAllData();
-                        }
+                        showToast('Item deleted.', 'success');
+                        loadAllData();
                     } catch (e) {
                         showToast('Delete operation failed.', 'error');
                     }
@@ -835,16 +817,13 @@
 
                 const generateDefaultTimeSlots = async () => {
                     try {
+                        const config = { headers: getAuthHeaders() };
                         for (let ts of state.timeslots) {
-                            await fetch(`${API_BASE}/time-slots/${ts.id}/`, { method: 'DELETE', headers: getAuthHeaders() });
+                            await axios.delete(`${API_BASE}/time-slots/${ts.id}/`, config);
                         }
                         for (let day of dayKeys) {
                             for (let hour = 1; hour <= 8; hour++) {
-                                await fetch(`${API_BASE}/time-slots/`, {
-                                    method: 'POST',
-                                    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
-                                    body: JSON.stringify({ day, hour })
-                                });
+                                await axios.post(`${API_BASE}/time-slots/`, { day, hour }, config);
                             }
                         }
                         showToast('Generated 40 weekly time slots.', 'success');
@@ -857,19 +836,14 @@
                 const generateSchedule = async () => {
                     showToast('Optimization engine running...', 'info');
                     try {
-                        const res = await fetch(`${API_BASE}/generate-schedule/`, {
-                            method: 'POST',
+                        const res = await axios.post(`${API_BASE}/generate-schedule/`, {}, {
                             headers: getAuthHeaders()
                         });
-                        const data = await res.json();
-                        if (res.ok) {
-                            showToast('Conflict-free schedule generated successfully!', 'success');
-                            loadAllData();
-                        } else {
-                            showToast(data.error || 'Failed to generate schedule.', 'error');
-                        }
+                        showToast('Conflict-free schedule generated successfully!', 'success');
+                        loadAllData();
                     } catch (e) {
-                        showToast('Failed to trigger optimization engine.', 'error');
+                        const errMsg = e.response?.data?.error || 'Failed to generate schedule.';
+                        showToast(errMsg, 'error');
                     }
                 };
 
