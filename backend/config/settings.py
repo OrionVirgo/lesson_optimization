@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', '')
 
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '*').split(',') if host.strip()] + ['.devtunnels.ms', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,testserver').split(',') if host.strip()] + ['testserver']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -107,4 +107,5 @@ STATICFILES_DIRS = [BASE_DIR.parent / 'frontend']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
+ 

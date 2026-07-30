@@ -1,123 +1,376 @@
 {% verbatim %}
-<div v-show="activeModal === 'teacher'" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-user-plus text-brand-400"></i> Add New Teacher
-        </h3>
-        <form @submit.prevent="saveTeacher" class="flex flex-col gap-3 text-sm">
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Teacher Name:
-                <input v-model="formTeacher.name" type="text" required placeholder="e.g. John Smith" class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-            </label>
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Weekly Off-Day:
-                <select v-model="formTeacher.off_day" class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-                    <option v-for="day in dayKeys" :key="day" :value="day">{{ day }}</option>
-                </select>
-            </label>
-            <div class="flex justify-end gap-2 mt-2">
-                <button type="button" @click="closeModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">Cancel</button>
-                <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">Save</button>
+<!-- TEACHER FORM DIALOG (Add / Edit) -->
+<div v-show="activeModal === 'teacher'" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-2xl border border-slate-700/80 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2 font-display">
+                <span class="text-2xl">🏫</span>
+                <span>{{ isEditTeacher ? 'Edit Faculty Details' : 'Add New Faculty Member' }}</span>
+            </h3>
+            <button type="button" @click="closeModal" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+        </div>
+
+        <form @submit.prevent="saveTeacher" class="flex flex-col gap-5">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>👤</span>
+                    <span>Personal & Contact Information</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Academic Title
+                        <select v-model="formTeacher.academic_title" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option value="Prof. Dr.">Prof. Dr.</option>
+                            <option value="Assoc. Prof. Dr.">Assoc. Prof. Dr.</option>
+                            <option value="Asst. Prof. Dr.">Asst. Prof. Dr.</option>
+                            <option value="Lecturer">Lecturer</option>
+                            <option value="Research Asst.">Research Asst.</option>
+                            <option value="Teacher">Teacher</option>
+                        </select>
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Full Name *
+                        <input v-model="formTeacher.name" type="text" required placeholder="e.g. John Doe" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Email Address
+                        <input v-model="formTeacher.email" type="email" placeholder="john.doe@university.edu" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Phone Number
+                        <input v-model="formTeacher.phone" type="text" placeholder="+1 (555) 019-2834" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>🎓</span>
+                    <span>Academic & Department Details</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Department / Field
+                        <select v-model="formTeacher.branch" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option value="">-- Select Department / Course --</option>
+                            <option v-for="c in state.courses" :key="c.id" :value="c.name">{{ c.name }}</option>
+                        </select>
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Office Room Number
+                        <input v-model="formTeacher.office_room" type="text" placeholder="e.g. B-204" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>🗓️</span>
+                    <span>Work Schedule & Teaching Rules</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Off Day *
+                        <select v-model="formTeacher.off_day" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option v-for="day in dayKeys" :key="day" :value="day">{{ day }}</option>
+                        </select>
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Max Daily Teaching Hours
+                        <input v-model.number="formTeacher.max_daily_hours" type="number" min="1" max="10" placeholder="6" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" @click="closeModal" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-sm font-bold shadow-lg shadow-brand-500/25 transition">
+                    {{ isEditTeacher ? 'Update Faculty' : 'Save Faculty' }}
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div v-show="activeModal === 'class'" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-school text-brand-400"></i> Add New Class
-        </h3>
-        <form @submit.prevent="saveClass" class="flex flex-col gap-3 text-sm">
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Class Name:
-                <input v-model="formClass.name" type="text" required placeholder="e.g. Grade 9-A" class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-            </label>
-            <div class="flex justify-end gap-2 mt-2">
-                <button type="button" @click="closeModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">Cancel</button>
-                <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">Save</button>
+<!-- STUDENT COHORT / SECTION MODAL (Add / Edit) -->
+<div v-show="activeModal === 'class'" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-xl border border-slate-700/80 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2 font-display">
+                <span class="text-2xl">🎓</span>
+                <span>{{ isEditClass ? 'Edit Student Cohort' : 'Add Student Cohort / Section' }}</span>
+            </h3>
+            <button type="button" @click="closeModal" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+        </div>
+
+        <form @submit.prevent="saveClass" class="flex flex-col gap-5">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>📖</span>
+                    <span>Academic & Program Details</span>
+                </div>
+
+                <div class="flex flex-col gap-3 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Cohort / Section Name *
+                        <input v-model="formClass.name" type="text" required placeholder="e.g. CS-101 (Section A) or Grade 10-A" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                            Degree Level
+                            <select v-model="formClass.degree_level" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                                <option value="Bachelor (B.Sc.)">Bachelor (B.Sc.)</option>
+                                <option value="Master (M.Sc.)">Master (M.Sc.)</option>
+                                <option value="Doctorate (Ph.D.)">Doctorate (Ph.D.)</option>
+                                <option value="Associate (A.A.)">Associate (A.A.)</option>
+                            </select>
+                        </label>
+
+                        <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                            Academic Year / Level
+                            <select v-model="formClass.academic_year" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                                <option value="Year 1 (Freshman)">Year 1 (Freshman)</option>
+                                <option value="Year 2 (Sophomore)">Year 2 (Sophomore)</option>
+                                <option value="Year 3 (Junior)">Year 3 (Junior)</option>
+                                <option value="Year 4 (Senior)">Year 4 (Senior)</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>👥</span>
+                    <span>Enrollment & Advisor Information</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Enrolled Students / Capacity
+                        <input v-model.number="formClass.student_count" type="number" min="1" max="500" placeholder="40" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Academic Advisor
+                        <select v-model="formClass.advisor" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option value="">-- No Advisor Assigned --</option>
+                            <option v-for="t in state.teachers" :key="t.id" :value="t.id">{{ t.academic_title }} {{ t.name }}</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider text-xs">
+                    Home Building / Preferred Campus
+                    <input v-model="formClass.home_building" type="text" placeholder="e.g. Engineering Faculty - Block A" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                </label>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" @click="closeModal" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/25 transition">
+                    {{ isEditClass ? 'Update Cohort' : 'Save Cohort' }}
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div v-show="activeModal === 'classroom'" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-door-open text-brand-400"></i> Add New Room / Laboratory
-        </h3>
-        <form @submit.prevent="saveClassroom" class="flex flex-col gap-3 text-sm">
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Room Name:
-                <input v-model="formClassroom.name" type="text" required placeholder="e.g. Room 101 or Science Lab" class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
+<!-- SIMPLIFIED CLASSROOM / LECTURE HALL MODAL (Add / Edit) -->
+<div v-show="activeModal === 'classroom'" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-md border border-slate-700/80 shadow-2xl flex flex-col gap-5">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2 font-display">
+                <span class="text-2xl">🏛️</span>
+                <span>{{ isEditClassroom ? 'Edit Classroom' : 'Add Room / Hall' }}</span>
+            </h3>
+            <button type="button" @click="closeModal" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+        </div>
+
+        <form @submit.prevent="saveClassroom" class="flex flex-col gap-4">
+            <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider text-xs">
+                Room / Hall Name *
+                <input v-model="formClassroom.name" type="text" required placeholder="e.g. Amphi-1 or Turing Lab" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
             </label>
-            <label class="flex items-center gap-3 text-slate-300 font-medium cursor-pointer mt-1">
-                <input v-model="formClassroom.is_lab" type="checkbox" class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 bg-slate-900 border-slate-700">
+
+            <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider text-xs">
+                Seating Capacity
+                <input v-model.number="formClassroom.capacity" type="number" min="1" max="1000" placeholder="50" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+            </label>
+
+            <label class="flex items-center gap-2.5 text-slate-300 text-xs font-medium cursor-pointer pt-1">
+                <input v-model="formClassroom.is_lab" type="checkbox" class="w-4 h-4 rounded text-brand-600 bg-slate-950 border-slate-800">
                 <span>Is Laboratory Facility?</span>
             </label>
-            <div class="flex justify-end gap-2 mt-2">
-                <button type="button" @click="closeModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">Cancel</button>
-                <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">Save</button>
+
+            <div class="flex justify-end gap-3 pt-3">
+                <button type="button" @click="closeModal" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/25 transition">
+                    {{ isEditClassroom ? 'Update Room' : 'Save Room' }}
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div v-show="activeModal === 'course'" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-book text-brand-400"></i> Add New Course
-        </h3>
-        <form @submit.prevent="saveCourse" class="flex flex-col gap-3 text-sm">
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Course Name:
-                <input v-model="formCourse.name" type="text" required placeholder="e.g. Mathematics" class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-            </label>
-            <label class="flex items-center gap-3 text-slate-300 font-medium cursor-pointer mt-1">
-                <input v-model="formCourse.is_lab_required" type="checkbox" class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 bg-slate-900 border-slate-700">
-                <span>Laboratory Required?</span>
-            </label>
-            <div class="flex justify-end gap-2 mt-2">
-                <button type="button" @click="closeModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">Cancel</button>
-                <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">Save</button>
+<!-- UNIVERSITY COURSE MODAL (Add / Edit) -->
+<div v-show="activeModal === 'course'" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-xl border border-slate-700/80 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2 font-display">
+                <span class="text-2xl">📚</span>
+                <span>{{ isEditCourse ? 'Edit Course Details' : 'Add University Course' }}</span>
+            </h3>
+            <button type="button" @click="closeModal" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+        </div>
+
+        <form @submit.prevent="saveCourse" class="flex flex-col gap-5">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>📖</span>
+                    <span>Course Identification</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider sm:col-span-1">
+                        Course Code
+                        <input v-model="formCourse.code" type="text" placeholder="e.g. CS-101" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider sm:col-span-2">
+                        Course Title *
+                        <input v-model="formCourse.name" type="text" required placeholder="e.g. Data Structures & Algorithms" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+                </div>
+
+                <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider text-xs">
+                    Faculty / Department
+                    <input v-model="formCourse.department" type="text" placeholder="e.g. Department of Computer Engineering" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                </label>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>⚖️</span>
+                    <span>Credits & Constraints</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        ECTS Credits
+                        <input v-model.number="formCourse.credits" type="number" min="1" max="30" placeholder="6" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Course Type
+                        <select v-model="formCourse.course_type" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option value="Compulsory">Compulsory</option>
+                            <option value="Elective">Elective</option>
+                            <option value="General Requirement">General Requirement</option>
+                        </select>
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Max Block Hours
+                        <input v-model.number="formCourse.max_block_hours" type="number" min="1" max="4" placeholder="2" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+                </div>
+
+                <label class="flex items-center gap-2 text-slate-300 text-xs cursor-pointer pt-1">
+                    <input v-model="formCourse.is_lab_required" type="checkbox" class="w-4 h-4 rounded text-brand-600 bg-slate-950 border-slate-800">
+                    <span>Requires Laboratory Facility?</span>
+                </label>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" @click="closeModal" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/25 transition">
+                    {{ isEditCourse ? 'Update Course' : 'Save Course' }}
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div v-show="activeModal === 'requirement'" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-2xl flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-link text-brand-400"></i> Create Course Assignment
-        </h3>
-        <form @submit.prevent="saveRequirement" class="flex flex-col gap-3 text-sm">
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Select Class:
-                <select v-model="formReq.school_class" required class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-                    <option v-for="c in state.classes" :key="c.id" :value="c.id">{{ c.name }}</option>
-                </select>
-            </label>
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Select Course:
-                <select v-model="formReq.course" required class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-                    <option v-for="co in state.courses" :key="co.id" :value="co.id">{{ co.name }}</option>
-                </select>
-            </label>
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Select Teacher:
-                <select v-model="formReq.teacher" required class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-                    <option v-for="t in state.teachers" :key="t.id" :value="t.id">{{ t.name }} (Off: {{ t.off_day }})</option>
-                </select>
-            </label>
-            <label class="flex flex-col gap-1 text-slate-300 font-medium">
-                Weekly Hours:
-                <input v-model.number="formReq.weekly_hours" type="number" min="1" max="10" required class="bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500">
-            </label>
-            <div class="flex justify-end gap-2 mt-2">
-                <button type="button" @click="closeModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">Cancel</button>
-                <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">Save</button>
+<!-- COURSE ASSIGNMENT / REQUIREMENT MODAL (Add / Edit) -->
+<div v-show="activeModal === 'requirement'" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-xl border border-slate-700/80 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2 font-display">
+                <span class="text-2xl">🔗</span>
+                <span>{{ isEditReq ? 'Edit Course Offering' : 'Create Course Offering Assignment' }}</span>
+            </h3>
+            <button type="button" @click="closeModal" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+        </div>
+
+        <form @submit.prevent="saveRequirement" class="flex flex-col gap-5">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                    <span>🎯</span>
+                    <span>Target Cohort & Instructor</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Select Student Cohort *
+                        <select v-model="formReq.school_class" required class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option v-for="c in state.classes" :key="c.id" :value="c.id">{{ c.name }}</option>
+                        </select>
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Select Course *
+                        <select v-model="formReq.course" required class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option v-for="co in state.courses" :key="co.id" :value="co.id">{{ co.code ? co.code + ' - ' : '' }}{{ co.name }}</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Assigned Instructor *
+                        <select v-model="formReq.teacher" required class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                            <option v-for="t in state.teachers" :key="t.id" :value="t.id">{{ t.academic_title }} {{ t.name }} (Off: {{ t.off_day }})</option>
+                        </select>
+                    </label>
+
+                    <label class="flex flex-col gap-1.5 text-slate-300 font-semibold uppercase tracking-wider">
+                        Weekly Hours *
+                        <input v-model.number="formReq.weekly_hours" type="number" min="1" max="10" required class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-500 font-normal">
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" @click="closeModal" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/25 transition">
+                    {{ isEditReq ? 'Update Assignment' : 'Save Assignment' }}
+                </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- REUSABLE DELETE CONFIRMATION VUE 3 COMPONENT (Uses props & emits) -->
+<delete-modal
+    :show="showDeleteModal"
+    :title="deleteTarget.title"
+    :message="deleteTarget.message"
+    :item-id="deleteTarget.id"
+    :endpoint="deleteTarget.endpoint"
+    :t="t"
+    @close="showDeleteModal = false"
+    @confirm="handleConfirmDelete"
+></delete-modal>
 {% endverbatim %}

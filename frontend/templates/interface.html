@@ -120,13 +120,27 @@
 
         <div v-if="!isLoggedIn" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl p-4">
             <div class="glass-card max-w-md w-full rounded-3xl p-8 border border-slate-800 shadow-2xl flex flex-col gap-6 relative overflow-hidden">
+                <div class="absolute top-4 right-4">
+                    <div class="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl">
+                        <button @click="setLanguage('tr')" 
+                                :class="currentLang === 'tr' ? 'bg-brand-600 text-white font-bold shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                                class="px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1">
+                            <span>🇹🇷</span> <span>TR</span>
+                        </button>
+                        <button @click="setLanguage('en')" 
+                                :class="currentLang === 'en' ? 'bg-brand-600 text-white font-bold shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                                class="px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1">
+                            <span>🇬🇧</span> <span>EN</span>
+                        </button>
+                    </div>
+                </div>
                 <div class="text-center flex flex-col items-center gap-3">
                     <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-xl">
                         <i class="fa-solid fa-user-lock text-3xl text-white"></i>
                     </div>
                     <div>
-                        <h2 class="font-display font-bold text-2xl text-white tracking-tight">User Authentication</h2>
-                        <p class="text-xs text-slate-400 mt-1">Lesson Scheduling & Optimization System</p>
+                        <h2 class="font-display font-bold text-2xl text-white tracking-tight">{{ t('user_auth') }}</h2>
+                        <p class="text-xs text-slate-400 mt-1">{{ t('app_title') }} {{ t('app_title_highlight') }}</p>
                     </div>
                 </div>
 
@@ -137,17 +151,17 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Username</label>
-                        <input v-model="loginForm.username" type="text" required placeholder="Enter username" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">{{ t('username') }}</label>
+                        <input v-model="loginForm.username" type="text" required :placeholder="t('enter_username')" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Password</label>
-                        <input v-model="loginForm.password" type="password" required placeholder="Enter password" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">{{ t('password') }}</label>
+                        <input v-model="loginForm.password" type="password" required :placeholder="t('enter_password')" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
                     </div>
 
                     <button type="submit" class="mt-2 w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-sm shadow-lg">
-                        <span>Log In</span>
+                        <span>{{ t('login') }}</span>
                     </button>
                 </form>
             </div>
@@ -162,23 +176,23 @@
                 <div class="no-print glass-card p-1.5 rounded-2xl flex flex-wrap gap-1 border border-slate-800 bg-slate-900/60">
                     <button @click="activeTab = 'timetable'" :class="tabBtnClass('timetable')">
                         <i class="fa-solid fa-calendar-week"></i>
-                        <span>Weekly Schedule</span>
+                        <span>{{ t('tab_timetable') }}</span>
                     </button>
                     <button @click="activeTab = 'teachers'" :class="tabBtnClass('teachers')">
                         <i class="fa-solid fa-chalkboard-user"></i>
-                        <span>Teachers</span>
+                        <span>{{ t('tab_teachers') }}</span>
                     </button>
                     <button @click="activeTab = 'classes'" :class="tabBtnClass('classes')">
                         <i class="fa-solid fa-school"></i>
-                        <span>Classes & Rooms</span>
+                        <span>{{ t('tab_classes') }}</span>
                     </button>
                     <button @click="activeTab = 'courses'" :class="tabBtnClass('courses')">
                         <i class="fa-solid fa-book-open"></i>
-                        <span>Courses & Assignments</span>
+                        <span>{{ t('tab_courses') }}</span>
                     </button>
                     <button @click="activeTab = 'timeslots'" :class="tabBtnClass('timeslots')">
                         <i class="fa-solid fa-clock"></i>
-                        <span>Time Slots</span>
+                        <span>{{ t('tab_timeslots') }}</span>
                     </button>
                 </div>
 {% endverbatim %}
@@ -198,12 +212,249 @@
     <script>
         const { createApp, ref, reactive, computed, onMounted } = Vue;
 
-        createApp({
+        // Vue 3 DeleteModal Component (Using explicit props and emits)
+        const DeleteModal = {
+            name: 'DeleteModal',
+            props: {
+                show: { type: Boolean, default: false },
+                title: { type: String, default: 'Confirm Deletion' },
+                message: { type: String, default: '' },
+                itemId: { type: [Number, String], default: null },
+                endpoint: { type: String, default: '' },
+                t: { type: Function, required: true }
+            },
+            emits: ['close', 'confirm'],
+            template: `
+                <div v-if="show" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-rose-900/50 shadow-2xl flex flex-col gap-4">
+                        <div class="flex items-center gap-3 text-rose-400">
+                            <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                                <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">{{ title }}</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            {{ message }}
+                        </p>
+
+                        <div class="flex justify-end gap-2 mt-2 pt-3 border-t border-slate-800">
+                            <button type="button" @click="$emit('close')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">
+                                {{ t('cancel') }}
+                            </button>
+                            <button type="button" @click="$emit('confirm', { endpoint, id: itemId })" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-600/20">
+                                {{ t('delete') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        const app = createApp({
+            components: {
+                DeleteModal
+            },
             setup() {
                 const API_BASE = window.location.origin && window.location.origin.startsWith('http')
                     ? `${window.location.origin}/api`
                     : 'http://127.0.0.1:8000/api';
                 const dayKeys = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+                // Vue 3 Reactive i18n
+                const currentLang = ref(localStorage.getItem('app_lang') || 'tr');
+
+                const translations = {
+                    tr: {
+                        app_title: "Ders Programı",
+                        app_title_highlight: "Optimizasyonu",
+                        app_subtitle: "Akıllı ve Çakışmasız Ders Programı Oluşturucu",
+                        user_auth: "Kullanıcı Girişi",
+                        welcome: "Hoş geldiniz,",
+                        login: "Giriş Yap",
+                        log_out: "Çıkış Yap",
+                        username: "Kullanıcı Adı",
+                        password: "Şifre",
+                        enter_username: "Kullanıcı adınızı girin",
+                        enter_password: "Şifrenizi girin",
+                        generate_schedule: "Program Oluştur",
+                        print_timetable: "Yazdır",
+
+                        tab_timetable: "Haftalık Ders Programı",
+                        tab_teachers: "Öğretmenler",
+                        tab_classes: "Sınıflar & Derslikler",
+                        tab_courses: "Dersler & Atamalar",
+                        tab_timeslots: "Zaman Dilimleri",
+
+                        select_class: "Sınıf Seçin:",
+                        schedule_matrix_title: "Haftalık Ders Programı Tablosu",
+                        overview_mon_fri: "Pazartesi - Cuma Haftalık Genel Bakış",
+                        lecture: "Teorik Ders",
+                        laboratory: "Laboratuvar",
+                        hour: "Saat",
+                        hour_num: "Saat {num}",
+                        empty: "Boş",
+
+                        day_monday: "Pazartesi",
+                        day_tuesday: "Salı",
+                        day_wednesday: "Çarşamba",
+                        day_thursday: "Perşembe",
+                        day_friday: "Cuma",
+
+                        teacher_mgmt_title: "Öğretmen Yönetimi",
+                        teacher_mgmt_subtitle: "Öğretmen kadrosunu ve haftalık izin günlerini yönetin",
+                        add_teacher: "Yeni Öğretmen Ekle",
+                        teacher_name: "Öğretmen Adı",
+                        branch: "Branş",
+                        off_day: "İzin Günü",
+                        actions: "İşlemler",
+                        no_teachers: "Henüz öğretmen eklenmedi.",
+
+                        classes_mgmt_title: "Sınıf ve Derslik Yönetimi",
+                        classes_mgmt_subtitle: "Öğrenci sınıflarını ve mevcut fiziksel derslikleri yapılandırın",
+                        school_classes: "Okul Sınıfları",
+                        classrooms: "Fiziksel Derslikler",
+                        add_class: "Yeni Sınıf Ekle",
+                        add_classroom: "Yeni Derslik Ekle",
+                        class_name: "Sınıf Adı",
+                        grade_level: "Sınıf Seviyesi",
+                        capacity: "Kapasite",
+                        is_lab: "Laboratuvar Donanımlı mı?",
+                        yes: "Evet",
+                        no: "Hayır",
+                        no_classes: "Henüz sınıf eklenmedi.",
+                        no_classrooms: "Henüz derslik eklenmedi.",
+
+                        courses_mgmt_title: "Dersler ve Atamalar",
+                        courses_mgmt_subtitle: "Ders tanımları ve haftalık sınıf atama gereksinimleri",
+                        course_list: "Ders Listesi",
+                        course_assignments: "Sınıf Ders Atamaları",
+                        add_course: "Yeni Ders Ekle",
+                        add_assignment: "Yeni Atama Ekle",
+                        course_name: "Ders Adı",
+                        course_code: "Ders Kodu",
+                        weekly_hours: "Haftalık Saat",
+                        requires_lab: "Laboratuvar Gerektirir mi?",
+                        assigned_class: "Atanan Sınıf",
+                        assigned_teacher: "Atanan Öğretmen",
+                        no_courses: "Henüz ders eklenmedi.",
+                        no_assignments: "Henüz ders ataması yapılmadı.",
+
+                        timeslots_mgmt_title: "Zaman Dilimleri",
+                        timeslots_mgmt_subtitle: "Sistemde tanımlı haftalık ders saatleri",
+                        generate_default_slots: "Varsayılan Dilimleri Oluştur (40 Saat)",
+                        day: "Gün",
+                        no_timeslots: "Henüz zaman dilimi eklenmedi.",
+
+                        cancel: "İptal",
+                        save: "Kaydet",
+                        delete: "Sil",
+                        confirm_delete_title: "Silmeyi Onayla",
+                        confirm_delete_msg: "Bu kaydı silmek istediğinizden emin misiniz?"
+                    },
+                    en: {
+                        app_title: "Schedule",
+                        app_title_highlight: "Optimization",
+                        app_subtitle: "Intelligent Conflict-Free Timetable Generator",
+                        user_auth: "User Authentication",
+                        welcome: "Welcome,",
+                        login: "Log In",
+                        log_out: "Log Out",
+                        username: "Username",
+                        password: "Password",
+                        enter_username: "Enter username",
+                        enter_password: "Enter password",
+                        generate_schedule: "Generate Schedule",
+                        print_timetable: "Print",
+
+                        tab_timetable: "Weekly Schedule",
+                        tab_teachers: "Teachers",
+                        tab_classes: "Classes & Rooms",
+                        tab_courses: "Courses & Assignments",
+                        tab_timeslots: "Time Slots",
+
+                        select_class: "Select Class:",
+                        schedule_matrix_title: "Weekly Schedule Matrix",
+                        overview_mon_fri: "Monday - Friday Weekly Overview",
+                        lecture: "Lecture",
+                        laboratory: "Laboratory",
+                        hour: "Hour",
+                        hour_num: "Hour {num}",
+                        empty: "Empty",
+
+                        day_monday: "Monday",
+                        day_tuesday: "Tuesday",
+                        day_wednesday: "Wednesday",
+                        day_thursday: "Thursday",
+                        day_friday: "Friday",
+
+                        teacher_mgmt_title: "Teacher Management",
+                        teacher_mgmt_subtitle: "Manage teaching staff and weekly off-days",
+                        add_teacher: "Add New Teacher",
+                        teacher_name: "Teacher Name",
+                        branch: "Branch",
+                        off_day: "Off-Day",
+                        actions: "Actions",
+                        no_teachers: "No teachers added yet.",
+
+                        classes_mgmt_title: "Class & Classroom Management",
+                        classes_mgmt_subtitle: "Configure student grades and physical classrooms",
+                        school_classes: "School Classes",
+                        classrooms: "Physical Classrooms",
+                        add_class: "Add New Class",
+                        add_classroom: "Add New Classroom",
+                        class_name: "Class Name",
+                        grade_level: "Grade Level",
+                        capacity: "Capacity",
+                        is_lab: "Is Lab Equipped?",
+                        yes: "Yes",
+                        no: "No",
+                        no_classes: "No classes added yet.",
+                        no_classrooms: "No classrooms added yet.",
+
+                        courses_mgmt_title: "Courses & Assignments",
+                        courses_mgmt_subtitle: "Manage course catalog and weekly class allocations",
+                        course_list: "Course List",
+                        course_assignments: "Class Course Assignments",
+                        add_course: "Add New Course",
+                        add_assignment: "Add New Assignment",
+                        course_name: "Course Name",
+                        course_code: "Course Code",
+                        weekly_hours: "Weekly Hours",
+                        requires_lab: "Requires Laboratory?",
+                        assigned_class: "Assigned Class",
+                        assigned_teacher: "Assigned Teacher",
+                        no_courses: "No courses added yet.",
+                        no_assignments: "No course assignments created yet.",
+
+                        timeslots_mgmt_title: "Time Slots",
+                        timeslots_mgmt_subtitle: "Weekly schedule time slots and period definitions",
+                        generate_default_slots: "Generate Default Slots (40 Hours)",
+                        day: "Day",
+                        no_timeslots: "No time slots added yet.",
+
+                        cancel: "Cancel",
+                        save: "Save",
+                        delete: "Delete",
+                        confirm_delete_title: "Confirm Delete",
+                        confirm_delete_msg: "Are you sure you want to delete this record?"
+                    }
+                };
+
+                const t = (key, params = {}) => {
+                    let text = translations[currentLang.value]?.[key] || translations['tr']?.[key] || key;
+                    if (params) {
+                        Object.keys(params).forEach(p => {
+                            text = text.replace(new RegExp(`\\{${p}\\}`, 'g'), params[p]);
+                        });
+                    }
+                    return text;
+                };
+
+                const setLanguage = (lang) => {
+                    currentLang.value = lang;
+                    localStorage.setItem('app_lang', lang);
+                };
 
                 const isLoggedIn = ref(false);
                 const user = ref(null);
@@ -225,10 +476,60 @@
                     schedules: []
                 });
 
-                const formTeacher = reactive({ name: '', off_day: 'Monday' });
-                const formClass = reactive({ name: '' });
-                const formClassroom = reactive({ name: '', is_lab: false });
-                const formCourse = reactive({ name: '', is_lab_required: false });
+                const formTeacher = reactive({
+                    academic_title: 'Prof. Dr.',
+                    name: '',
+                    email: '',
+                    phone: '',
+                    branch: '',
+                    office_room: '',
+                    off_day: 'Monday',
+                    max_daily_hours: 6
+                });
+                const isEditTeacher = ref(false);
+                const editingTeacherId = ref(null);
+                const isEditClass = ref(false);
+                const editingClassId = ref(null);
+                const isEditClassroom = ref(false);
+                const editingClassroomId = ref(null);
+                const isEditCourse = ref(false);
+                const editingCourseId = ref(null);
+                const isEditReq = ref(false);
+                const editingReqId = ref(null);
+
+                const showDeleteModal = ref(false);
+                const deleteTarget = reactive({
+                    title: '',
+                    message: '',
+                    endpoint: '',
+                    id: null
+                });
+
+                const formClass = reactive({
+                    name: '',
+                    degree_level: 'Bachelor (B.Sc.)',
+                    academic_year: 'Year 1 (Freshman)',
+                    student_count: 40,
+                    advisor: '',
+                    home_building: ''
+                });
+
+                const formClassroom = reactive({
+                    name: '',
+                    capacity: 50,
+                    is_lab: false
+                });
+
+                const formCourse = reactive({
+                    code: '',
+                    name: '',
+                    department: '',
+                    credits: 6,
+                    course_type: 'Compulsory',
+                    max_block_hours: 2,
+                    is_lab_required: false
+                });
+
                 const formReq = reactive({ school_class: '', course: '', teacher: '', weekly_hours: 2 });
 
                 const getAuthHeaders = (extra = {}) => {
@@ -315,6 +616,22 @@
                     }
                 };
 
+                const parseError = (e) => {
+                    if (!e.response?.data) return 'Network or server error occurred.';
+                    const data = e.response.data;
+                    if (typeof data === 'string') return data;
+                    if (data.error) return data.error;
+                    if (typeof data === 'object') {
+                        const keys = Object.keys(data);
+                        if (keys.length > 0) {
+                            const field = keys[0];
+                            const msg = Array.isArray(data[field]) ? data[field].join(', ') : data[field];
+                            return `${field}: ${msg}`;
+                        }
+                    }
+                    return 'Operation failed.';
+                };
+
                 const fetchPost = async (endpoint, data, successMsg) => {
                     try {
                         await axios.post(`${API_BASE}/${endpoint}/`, data, {
@@ -324,55 +641,237 @@
                         closeModal();
                         loadAllData();
                     } catch (e) {
-                        const errMsg = e.response?.data?.error || 'Operation failed.';
-                        showToast(errMsg, 'error');
+                        showToast(parseError(e), 'error');
                     }
                 };
 
-                const deleteItem = async (endpoint, id) => {
-                    if (!confirm('Are you sure you want to delete this item?')) return;
+                const confirmDelete = (endpoint, id, itemName = 'this item') => {
+                    deleteTarget.title = t('confirm_delete_title');
+                    deleteTarget.message = `${t('confirm_delete_msg')} (${itemName})`;
+                    deleteTarget.endpoint = endpoint;
+                    deleteTarget.id = id;
+                    showDeleteModal.value = true;
+                };
+
+                const handleConfirmDelete = async ({ endpoint, id }) => {
+                    if (!endpoint || !id) return;
                     try {
                         await axios.delete(`${API_BASE}/${endpoint}/${id}/`, {
                             headers: getAuthHeaders()
                         });
-                        showToast('Item deleted.', 'success');
+                        showToast(t('delete') + ' successful.', 'success');
+                        showDeleteModal.value = false;
                         loadAllData();
                     } catch (e) {
-                        showToast('Delete operation failed.', 'error');
+                        showToast(parseError(e), 'error');
                     }
                 };
 
-                const saveTeacher = () => {
-                    if (!formTeacher.name) return showToast('Please enter teacher name.', 'error');
-                    fetchPost('teachers', { ...formTeacher }, 'Teacher added successfully.');
+                const deleteItem = async (endpoint, id) => {
+                    return confirmDelete(endpoint, id);
+                };
+
+                const resetTeacherForm = () => {
+                    formTeacher.academic_title = 'Prof. Dr.';
                     formTeacher.name = '';
+                    formTeacher.email = '';
+                    formTeacher.phone = '';
+                    formTeacher.branch = '';
+                    formTeacher.office_room = '';
+                    formTeacher.off_day = 'Monday';
+                    formTeacher.max_daily_hours = 6;
                 };
 
-                const saveClass = () => {
-                    if (!formClass.name) return showToast('Class name is required.', 'error');
-                    fetchPost('school-classes', { ...formClass }, 'Class added.');
+                const resetClassForm = () => {
                     formClass.name = '';
+                    formClass.degree_level = 'Bachelor (B.Sc.)';
+                    formClass.academic_year = 'Year 1 (Freshman)';
+                    formClass.student_count = 40;
+                    formClass.advisor = '';
+                    formClass.home_building = '';
                 };
 
-                const saveClassroom = () => {
-                    if (!formClassroom.name) return showToast('Room name is required.', 'error');
-                    fetchPost('classrooms', { ...formClassroom }, 'Classroom added.');
+                const resetClassroomForm = () => {
                     formClassroom.name = '';
+                    formClassroom.capacity = 50;
                     formClassroom.is_lab = false;
                 };
 
-                const saveCourse = () => {
-                    if (!formCourse.name) return showToast('Course name is required.', 'error');
-                    fetchPost('courses', { ...formCourse }, 'Course added.');
+                const resetCourseForm = () => {
+                    formCourse.code = '';
                     formCourse.name = '';
+                    formCourse.department = '';
+                    formCourse.credits = 6;
+                    formCourse.course_type = 'Compulsory';
+                    formCourse.max_block_hours = 2;
                     formCourse.is_lab_required = false;
                 };
 
-                const saveRequirement = () => {
+                const editTeacher = (teacher) => {
+                    isEditTeacher.value = true;
+                    editingTeacherId.value = teacher.id;
+                    formTeacher.academic_title = teacher.academic_title || 'Prof. Dr.';
+                    formTeacher.name = teacher.name || '';
+                    formTeacher.email = teacher.email || '';
+                    formTeacher.phone = teacher.phone || '';
+                    formTeacher.branch = teacher.branch || '';
+                    formTeacher.office_room = teacher.office_room || '';
+                    formTeacher.off_day = teacher.off_day || 'Monday';
+                    formTeacher.max_daily_hours = teacher.max_daily_hours || 6;
+                    activeModal.value = 'teacher';
+                };
+
+                const editClass = (schoolClass) => {
+                    isEditClass.value = true;
+                    editingClassId.value = schoolClass.id;
+                    formClass.name = schoolClass.name || '';
+                    formClass.degree_level = schoolClass.degree_level || 'Bachelor (B.Sc.)';
+                    formClass.academic_year = schoolClass.academic_year || 'Year 1 (Freshman)';
+                    formClass.student_count = schoolClass.student_count || 40;
+                    formClass.advisor = schoolClass.advisor || '';
+                    formClass.home_building = schoolClass.home_building || '';
+                    activeModal.value = 'class';
+                };
+
+                const editClassroom = (classroom) => {
+                    isEditClassroom.value = true;
+                    editingClassroomId.value = classroom.id;
+                    formClassroom.name = classroom.name || '';
+                    formClassroom.capacity = classroom.capacity || 50;
+                    formClassroom.is_lab = !!classroom.is_lab;
+                    activeModal.value = 'classroom';
+                };
+
+                const editCourse = (course) => {
+                    isEditCourse.value = true;
+                    editingCourseId.value = course.id;
+                    formCourse.code = course.code || '';
+                    formCourse.name = course.name || '';
+                    formCourse.department = course.department || '';
+                    formCourse.credits = course.credits || 6;
+                    formCourse.course_type = course.course_type || 'Compulsory';
+                    formCourse.max_block_hours = course.max_block_hours || 2;
+                    formCourse.is_lab_required = !!course.is_lab_required;
+                    activeModal.value = 'course';
+                };
+
+                const editRequirement = (req) => {
+                    isEditReq.value = true;
+                    editingReqId.value = req.id;
+                    formReq.school_class = req.school_class;
+                    formReq.course = req.course;
+                    formReq.teacher = req.teacher;
+                    formReq.weekly_hours = req.weekly_hours || 2;
+                    activeModal.value = 'requirement';
+                };
+
+                const saveTeacher = async () => {
+                    if (!formTeacher.name) return showToast('Please enter teacher name.', 'error');
+                    const payload = { ...formTeacher };
+                    if (isEditTeacher.value && editingTeacherId.value) {
+                        try {
+                            await axios.put(`${API_BASE}/teachers/${editingTeacherId.value}/`, payload, {
+                                headers: getAuthHeaders()
+                            });
+                            showToast('Faculty updated successfully.', 'success');
+                            closeModal();
+                            loadAllData();
+                        } catch (e) {
+                            showToast(parseError(e), 'error');
+                        }
+                    } else {
+                        fetchPost('teachers', payload, 'Faculty added successfully.');
+                    }
+                    resetTeacherForm();
+                };
+
+                const saveClass = async () => {
+                    if (!formClass.name) return showToast('Cohort / Section name is required.', 'error');
+                    const payload = {
+                        ...formClass,
+                        advisor: formClass.advisor ? formClass.advisor : null
+                    };
+                    if (isEditClass.value && editingClassId.value) {
+                        try {
+                            await axios.put(`${API_BASE}/school-classes/${editingClassId.value}/`, payload, {
+                                headers: getAuthHeaders()
+                            });
+                            showToast('Student Cohort updated successfully.', 'success');
+                            closeModal();
+                            loadAllData();
+                        } catch (e) {
+                            showToast(parseError(e), 'error');
+                        }
+                    } else {
+                        fetchPost('school-classes', payload, 'Student Cohort created successfully.');
+                    }
+                    resetClassForm();
+                };
+
+                const saveClassroom = async () => {
+                    if (!formClassroom.name) return showToast('Hall / Room name is required.', 'error');
+                    const payload = { ...formClassroom };
+                    if (isEditClassroom.value && editingClassroomId.value) {
+                        try {
+                            await axios.put(`${API_BASE}/classrooms/${editingClassroomId.value}/`, payload, {
+                                headers: getAuthHeaders()
+                            });
+                            showToast('Classroom updated successfully.', 'success');
+                            closeModal();
+                            loadAllData();
+                        } catch (e) {
+                            showToast(parseError(e), 'error');
+                        }
+                    } else {
+                        fetchPost('classrooms', payload, 'Facility added successfully.');
+                    }
+                    resetClassroomForm();
+                };
+
+                const saveCourse = async () => {
+                    if (!formCourse.name) return showToast('Course title is required.', 'error');
+                    const payload = { ...formCourse };
+                    if (isEditCourse.value && editingCourseId.value) {
+                        try {
+                            await axios.put(`${API_BASE}/courses/${editingCourseId.value}/`, payload, {
+                                headers: getAuthHeaders()
+                            });
+                            showToast('Course updated successfully.', 'success');
+                            closeModal();
+                            loadAllData();
+                        } catch (e) {
+                            showToast(parseError(e), 'error');
+                        }
+                    } else {
+                        fetchPost('courses', payload, 'Course added to catalog successfully.');
+                    }
+                    resetCourseForm();
+                };
+
+                const saveRequirement = async () => {
                     if (!formReq.school_class || !formReq.course || !formReq.teacher || !formReq.weekly_hours) {
                         return showToast('Please complete all assignment fields.', 'error');
                     }
-                    fetchPost('course-requirements', { ...formReq }, 'Course assignment created.');
+                    const payload = {
+                        school_class: formReq.school_class,
+                        course: formReq.course,
+                        teacher: formReq.teacher,
+                        weekly_hours: Number(formReq.weekly_hours)
+                    };
+                    if (isEditReq.value && editingReqId.value) {
+                        try {
+                            await axios.put(`${API_BASE}/course-requirements/${editingReqId.value}/`, payload, {
+                                headers: getAuthHeaders()
+                            });
+                            showToast('Course offering updated successfully.', 'success');
+                            closeModal();
+                            loadAllData();
+                        } catch (e) {
+                            showToast(parseError(e), 'error');
+                        }
+                    } else {
+                        fetchPost('course-requirements', payload, 'Course assignment created successfully.');
+                    }
                 };
 
                 const generateDefaultTimeSlots = async () => {
@@ -408,10 +907,33 @@
                 };
 
                 const openModal = (modalName) => {
+                    if (modalName === 'teacher') {
+                        isEditTeacher.value = false;
+                        editingTeacherId.value = null;
+                        resetTeacherForm();
+                    }
+                    if (modalName === 'class') {
+                        isEditClass.value = false;
+                        editingClassId.value = null;
+                        resetClassForm();
+                    }
+                    if (modalName === 'classroom') {
+                        isEditClassroom.value = false;
+                        editingClassroomId.value = null;
+                        resetClassroomForm();
+                    }
+                    if (modalName === 'course') {
+                        isEditCourse.value = false;
+                        editingCourseId.value = null;
+                        resetCourseForm();
+                    }
                     if (modalName === 'requirement') {
+                        isEditReq.value = false;
+                        editingReqId.value = null;
                         formReq.school_class = state.classes[0]?.id || '';
                         formReq.course = state.courses[0]?.id || '';
                         formReq.teacher = state.teachers[0]?.id || '';
+                        formReq.weekly_hours = 2;
                     }
                     activeModal.value = modalName;
                 };
@@ -456,10 +978,23 @@
                     loginError,
                     state,
                     formTeacher,
+                    isEditTeacher,
+                    editTeacher,
                     formClass,
+                    isEditClass,
+                    editClass,
                     formClassroom,
+                    isEditClassroom,
+                    editClassroom,
                     formCourse,
+                    isEditCourse,
+                    editCourse,
                     formReq,
+                    isEditReq,
+                    editRequirement,
+                    deleteModalConfig,
+                    confirmDelete,
+                    executeConfirmedDelete,
                     dayKeys,
                     handleLogin,
                     handleLogout,
@@ -470,17 +1005,26 @@
                     saveClassroom,
                     saveCourse,
                     saveRequirement,
-                    deleteItem,
+                    showDeleteModal,
+                    deleteTarget,
+                    handleConfirmDelete,
+                    confirmDelete,
                     generateDefaultTimeSlots,
                     generateSchedule,
                     getTimeSlotsForDay,
                     getScheduleSlot,
                     scheduleStatsText,
                     tabBtnClass,
-                    printWindow
+                    printWindow,
+                    currentLang,
+                    setLanguage,
+                    t
                 };
+
+
             }
-        }).mount('#app');
+        });
+        app.mount('#app');
     </script>
 </body>
 </html>

@@ -15,9 +15,18 @@ class TeacherSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SchoolClassSerializer(serializers.ModelSerializer):
+    advisor = serializers.PrimaryKeyRelatedField(queryset=Teacher.objects.all(), required=False, allow_null=True)
+    advisor_name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = SchoolClass
         fields = '__all__'
+
+    def get_advisor_name(self, obj):
+        if obj.advisor:
+            prefix = f"{obj.advisor.academic_title} " if obj.advisor.academic_title else ""
+            return f"{prefix}{obj.advisor.name}"
+        return None
 
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:

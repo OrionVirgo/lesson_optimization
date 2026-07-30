@@ -2,49 +2,83 @@
 <section v-show="activeTab === 'teachers'" class="flex flex-col gap-6">
     <div class="flex justify-between items-center">
         <div>
-            <h2 class="text-2xl font-display font-bold text-white">Teacher Management</h2>
-            <p class="text-sm text-slate-400">Manage teaching staff and weekly off-days</p>
+            <h2 class="text-2xl font-display font-bold text-white flex items-center gap-2">
+                <span>🏫</span>
+                <span>{{ t('teacher_mgmt_title') }}</span>
+            </h2>
+            <p class="text-sm text-slate-400">{{ t('teacher_mgmt_subtitle') }}</p>
         </div>
-        <button @click="openModal('teacher')" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-500/20">
+        <button @click="openModal('teacher')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-500/20">
             <i class="fa-solid fa-plus"></i>
-            <span>Add New Teacher</span>
+            <span>{{ t('add_teacher') }}</span>
         </button>
     </div>
 
-    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-900/80 text-xs uppercase font-bold text-slate-400 border-b border-slate-800">
-                <tr>
-                    <th class="py-3.5 px-6">ID</th>
-                    <th class="py-3.5 px-6">Teacher Name</th>
-                    <th class="py-3.5 px-6">Off-Day</th>
-                    <th class="py-3.5 px-6 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800 text-sm text-slate-300">
-                <tr v-if="state.teachers.length === 0">
-                    <td colspan="4" class="py-8 text-center text-slate-500 italic">No teachers added yet.</td>
-                </tr>
-                <tr v-for="(teacher, index) in state.teachers" :key="teacher.id" class="hover:bg-slate-800/30 transition-colors">
-                    <td class="py-3.5 px-6 font-mono text-xs text-slate-500">#{{ index + 1 }}</td>
-                    <td class="py-3.5 px-6 font-semibold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-user text-brand-400"></i>
-                        <span>{{ teacher.name }}</span>
-                    </td>
-                    <td class="py-3.5 px-6">
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-                            {{ teacher.off_day }}
-                        </span>
-                    </td>
-                    <td class="py-3.5 px-6 text-right">
-                        <button @click="deleteItem('teachers', teacher.id)" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-semibold transition-all flex items-center gap-1.5 ml-auto">
-                            <i class="fa-solid fa-trash-can"></i>
-                            <span>Delete</span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead class="bg-slate-900/80 text-xs uppercase font-bold text-slate-400 border-b border-slate-800">
+                    <tr>
+                        <th class="py-3.5 px-6">ID</th>
+                        <th class="py-3.5 px-6">{{ t('teacher_name') }}</th>
+                        <th class="py-3.5 px-6">{{ t('branch') }}</th>
+                        <th class="py-3.5 px-6">Office Room</th>
+                        <th class="py-3.5 px-6">{{ t('off_day') }}</th>
+                        <th class="py-3.5 px-6">Max Hours/Day</th>
+                        <th class="py-3.5 px-6 text-right">{{ t('actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-sm text-slate-300">
+                    <tr v-if="state.teachers.length === 0">
+                        <td colspan="7" class="py-8 text-center text-slate-500 italic">{{ t('no_teachers') }}</td>
+                    </tr>
+                    <tr v-for="(teacher, index) in state.teachers" :key="teacher.id" class="hover:bg-slate-800/30 transition-colors">
+                        <td class="py-3.5 px-6 font-mono text-xs text-slate-500">#{{ index + 1 }}</td>
+                        <td class="py-3.5 px-6 font-semibold text-white">
+                            <div class="flex flex-col">
+                                <span class="text-xs text-indigo-400 font-bold uppercase tracking-wider">{{ teacher.academic_title || 'Prof. Dr.' }}</span>
+                                <span class="text-sm text-white font-bold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-circle text-brand-400"></i>
+                                    {{ teacher.name }}
+                                </span>
+                                <span v-if="teacher.email" class="text-[11px] text-slate-400 font-normal">{{ teacher.email }}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-6">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-300 border border-brand-500/20">
+                                {{ teacher.branch || 'General' }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-6 text-xs text-slate-300 font-mono">
+                            <span v-if="teacher.office_room" class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800">
+                                {{ teacher.office_room }}
+                            </span>
+                            <span v-else class="text-slate-500 italic">-</span>
+                        </td>
+                        <td class="py-3.5 px-6">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                                {{ t('day_' + teacher.off_day.toLowerCase()) }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-6 text-xs font-bold text-slate-300">
+                            {{ teacher.max_daily_hours || 6 }} hrs/day
+                        </td>
+                        <td class="py-3.5 px-6 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button @click="editTeacher(teacher)" class="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20 text-xs font-semibold transition-all flex items-center gap-1.5">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Düzenle</span>
+                                </button>
+                                <button @click="confirmDelete('teachers', teacher.id, teacher.name)" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-semibold transition-all flex items-center gap-1.5">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    <span>{{ t('delete') }}</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
 {% endverbatim %}

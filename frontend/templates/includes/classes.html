@@ -1,69 +1,102 @@
 {% verbatim %}
 <section v-show="activeTab === 'classes'" class="flex flex-col gap-8">
+    <!-- STUDENT COHORTS & SECTIONS -->
     <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-display font-bold text-white">Classes</h2>
-                <p class="text-xs text-slate-400">Active student classes (e.g. Grade 9-A)</p>
+                <h2 class="text-2xl font-display font-bold text-white flex items-center gap-2">
+                    <span>🎓</span>
+                    <span>{{ t('school_classes') }}</span>
+                </h2>
+                <p class="text-xs text-slate-400">{{ t('classes_mgmt_subtitle') }}</p>
             </div>
-            <button @click="openModal('class')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-semibold transition-all flex items-center gap-2">
+            <button @click="openModal('class')" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold transition-all flex items-center gap-2 shadow-lg shadow-brand-500/20">
                 <i class="fa-solid fa-plus"></i>
-                <span>Add Class</span>
+                <span>{{ t('add_class') }}</span>
             </button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div v-if="state.classes.length === 0" class="col-span-full py-8 text-center text-slate-500 italic border border-dashed border-slate-800 rounded-2xl">
-                No student classes defined.
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-if="state.classes.length === 0" class="col-span-full py-10 text-center text-slate-500 italic border border-dashed border-slate-800 rounded-3xl">
+                {{ t('no_classes') }}
             </div>
-            <div v-for="c in state.classes" :key="c.id" class="glass-card p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-lg">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">
-                        <i class="fa-solid fa-users"></i>
+            <div v-for="c in state.classes" :key="c.id" class="glass-card p-5 rounded-2xl border border-slate-800 flex flex-col justify-between gap-4 shadow-xl hover:border-slate-700 transition">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center font-bold text-xl shadow-inner">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <h4 class="font-bold text-white text-base leading-tight">{{ c.name }}</h4>
+                            <span class="text-xs text-indigo-400 font-semibold">{{ c.degree_level || 'Bachelor (B.Sc.)' }}</span>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-white text-base">{{ c.name }}</h4>
-                        <p class="text-[11px] text-slate-400">Student Class</p>
+                    <div class="flex items-center gap-1">
+                        <button @click="editClass(c)" title="Düzenle" class="p-2 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 transition-all">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button @click="confirmDelete('school-classes', c.id, c.name)" title="Sil" class="p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </div>
                 </div>
-                <button @click="deleteItem('school-classes', c.id)" class="p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
+
+                <div class="grid grid-cols-2 gap-2 text-xs border-t border-b border-slate-800/80 py-3 text-slate-300">
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">{{ t('grade_level') }}</span>
+                        <span class="font-medium text-slate-200">{{ c.academic_year || 'Year 1' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">{{ t('capacity') }}</span>
+                        <span class="font-semibold text-brand-300">{{ c.student_count || 40 }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- CLASSROOMS & LABORATORIES -->
     <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-display font-bold text-white">Classrooms & Laboratories</h2>
-                <p class="text-xs text-slate-400">Physical rooms and laboratory facilities</p>
+                <h2 class="text-2xl font-display font-bold text-white flex items-center gap-2">
+                    <span>🏛️</span>
+                    <span>{{ t('classrooms') }}</span>
+                </h2>
+                <p class="text-xs text-slate-400">{{ t('classes_mgmt_subtitle') }}</p>
             </div>
-            <button @click="openModal('classroom')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-semibold transition-all flex items-center gap-2">
+            <button @click="openModal('classroom')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-semibold transition-all flex items-center gap-2">
                 <i class="fa-solid fa-plus"></i>
-                <span>Add Classroom</span>
+                <span>{{ t('add_classroom') }}</span>
             </button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div v-if="state.classrooms.length === 0" class="col-span-full py-8 text-center text-slate-500 italic border border-dashed border-slate-800 rounded-2xl">
-                No rooms or laboratories added.
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div v-if="state.classrooms.length === 0" class="col-span-full py-10 text-center text-slate-500 italic border border-dashed border-slate-800 rounded-3xl">
+                {{ t('no_classrooms') }}
             </div>
-            <div v-for="cr in state.classrooms" :key="cr.id" class="glass-card p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-lg">
+            <div v-for="cr in state.classrooms" :key="cr.id" class="glass-card p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-xl hover:border-slate-700 transition">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
-                         :class="cr.is_lab ? 'bg-amber-500/20 text-amber-400' : 'bg-indigo-500/20 text-indigo-400'">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shadow-inner"
+                         :class="cr.is_lab ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'">
                         <i class="fa-solid" :class="cr.is_lab ? 'fa-flask' : 'fa-door-open'"></i>
                     </div>
                     <div>
-                        <h4 class="font-bold text-white text-base">{{ cr.name }}</h4>
-                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
-                              :class="cr.is_lab ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20' : 'bg-slate-800 text-slate-400'">
-                            {{ cr.is_lab ? 'Laboratory' : 'Standard Room' }}
-                        </span>
+                        <h4 class="font-bold text-white text-sm leading-tight">{{ cr.name }}</h4>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] font-bold text-emerald-400">{{ cr.capacity || 50 }} {{ t('capacity') }}</span>
+                            <span v-if="cr.is_lab" class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">LAB</span>
+                        </div>
                     </div>
                 </div>
-                <button @click="deleteItem('classrooms', cr.id)" class="p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
+                <div class="flex items-center gap-1">
+                    <button @click="editClassroom(cr)" title="Düzenle" class="p-2 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 transition-all">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button @click="confirmDelete('classrooms', cr.id, cr.name)" title="Sil" class="p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
