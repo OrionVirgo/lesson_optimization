@@ -31,8 +31,7 @@ lesson_optimization/
 │   ├── config/               # Django proje ayarları ve URL yapılandırması
 │   └── manage.py
 ├── frontend/
-│   ├── index.html            # Ana Vue 3 SPA Single-Page Arayüzü (Axios destekli)
-│   └── templates/            # Şablonlar ve bileşenler
+│   └── templates/            # Vue 3 SPA şablonları, bileşenleri (interface.html, DeleteModal vb.)
 ├── .env.example              # Ortam değişkenleri şablonu
 ├── .gitignore                # Git tarafından yoksayılacak dosyalar
 ├── requirements.txt          # Python bağımlılıkları
