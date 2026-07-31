@@ -9,7 +9,7 @@ if not env_file.exists():
     env_file = BASE_DIR.parent / '.env'
 load_dotenv(env_file)
 
-SECRET_KEY = os.getenv('SECRET_KEY', '')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-in-production')
 
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 
@@ -68,16 +68,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE',),
-        'NAME': os.getenv('DB_NAME',),       
-        'USER': os.getenv('DB_USER',),        
-        'PASSWORD': os.getenv('DB_PASSWORD'),   
-        'HOST': os.getenv('DB_HOST'),        
-        'PORT': os.getenv('DB_PORT'),
+db_engine = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
+if not db_engine or db_engine == 'sqlite3':
+    db_engine = 'django.db.backends.sqlite3'
+
+if db_engine == 'django.db.backends.sqlite3':
+    DATABASES = {
+        'default': {
+            'ENGINE': db_engine,
+            'NAME': os.getenv('DB_NAME') or (BASE_DIR / 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': db_engine,
+            'NAME': os.getenv('DB_NAME', 'lesson_db'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
