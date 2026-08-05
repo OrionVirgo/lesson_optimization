@@ -27,7 +27,8 @@ def is_classroom_suitable_for_course(classroom, course):
     if course.is_lab_required:
         return classroom.is_lab
     else:
-        return True
+        return not classroom.is_lab
+
 
 
 def is_consecutive_limit_ok(school_class, course, time_slot, current_schedule):
