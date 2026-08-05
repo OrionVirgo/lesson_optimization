@@ -8,9 +8,15 @@
             </select>
         </div>
 
-        <div class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center gap-2">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>{{ scheduleStatsText }}</span>
+        <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-xs text-brand-300 flex items-center gap-1.5 bg-brand-500/10 px-3 py-1.5 rounded-lg border border-brand-500/20">
+                <i class="fa-solid fa-hand-pointer text-brand-400 animate-pulse"></i>
+                <span>Dersleri sürükleyip başka bir saate taşıyabilir veya üst üste bırakarak takas edebilirsiniz.</span>
+            </span>
+            <div class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>{{ scheduleStatsText }}</span>
+            </div>
         </div>
     </div>
 
@@ -44,15 +50,37 @@
                 </thead>
                 <tbody class="divide-y divide-slate-800/60 text-sm">
                     <tr v-for="h in 8" :key="h" class="hover:bg-slate-900/40 transition-colors">
-                        <td class="py-4 px-3 font-semibold text-slate-400 bg-slate-950/40 border-r border-slate-800">
-                            {{ t('hour_num', { num: h }) }}
+                        <td class="py-3 px-3 font-semibold text-slate-400 bg-slate-950/40 border-r border-slate-800 text-xs">
+                            <div class="font-bold text-slate-200">{{ t('hour_num', { num: h }) }}</div>
+                            <div class="text-[10px] text-brand-400 font-mono mt-0.5" v-if="getTimeSlotTimeRange(h)">
+                                {{ getTimeSlotTimeRange(h) }}
+                            </div>
                         </td>
-                        <td v-for="day in dayKeys" :key="day" class="p-2 border-r border-slate-800/80 align-top">
+                        <td v-for="day in dayKeys" 
+                            :key="day" 
+                            class="p-2 border-r border-slate-800/80 align-top transition-all duration-200 relative"
+                            :class="{
+                                'bg-brand-500/20 border-2 border-dashed border-brand-400 scale-[0.99] shadow-inner': isDragOverSlot(day, h),
+                                'hover:bg-slate-900/60': !isDragOverSlot(day, h)
+                            }"
+                            @dragover.prevent="handleDragOver($event, day, h)"
+                            @dragleave="handleDragLeave($event)"
+                            @drop="handleDrop($event, day, h)">
+                            
                             <div v-if="getScheduleSlot(filterTargetClass, day, h)"
-                                 class="p-3 rounded-xl border flex flex-col gap-1 shadow-md text-left transition-all duration-200 hover:scale-[1.02]"
-                                 :class="getScheduleSlot(filterTargetClass, day, h).is_lab ? 'bg-amber-950/40 border-amber-500/40 text-amber-200' : 'bg-brand-950/40 border-brand-500/40 text-brand-200'">
+                                 draggable="true"
+                                 @dragstart="handleDragStart($event, getScheduleSlot(filterTargetClass, day, h))"
+                                 @dragend="handleDragEnd"
+                                 class="p-3 rounded-xl border flex flex-col gap-1 shadow-md text-left transition-all duration-200 cursor-grab active:cursor-grabbing hover:scale-[1.02] group relative select-none"
+                                 :class="[
+                                    getScheduleSlot(filterTargetClass, day, h).is_lab ? 'bg-amber-950/40 border-amber-500/40 text-amber-200' : 'bg-brand-950/40 border-brand-500/40 text-brand-200',
+                                    draggedSchedule && draggedSchedule.id === getScheduleSlot(filterTargetClass, day, h).id ? 'opacity-40 border-dashed border-brand-400 scale-95' : ''
+                                 ]">
                                 <div class="font-bold text-sm tracking-wide flex items-center justify-between">
-                                    <span>{{ getScheduleSlot(filterTargetClass, day, h).course_name }}</span>
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-grip-vertical text-slate-500 group-hover:text-slate-300 text-xs cursor-grab"></i>
+                                        {{ getScheduleSlot(filterTargetClass, day, h).course_name }}
+                                    </span>
                                     <i class="fa-solid text-xs" :class="getScheduleSlot(filterTargetClass, day, h).is_lab ? 'fa-flask text-amber-400' : 'fa-book text-brand-400'"></i>
                                 </div>
                                 <div class="text-xs opacity-90 flex items-center gap-1 mt-0.5">
@@ -64,8 +92,11 @@
                                     <span>{{ getScheduleSlot(filterTargetClass, day, h).classroom_name }}</span>
                                 </div>
                             </div>
-                            <div v-else class="h-16 rounded-xl border border-dashed border-slate-800/80 flex items-center justify-center text-slate-600 text-xs font-medium">
-                                <span>{{ t('empty') }}</span>
+                            
+                            <div v-else class="h-20 rounded-xl border border-dashed border-slate-800/80 flex flex-col items-center justify-center text-slate-600 text-xs font-medium gap-1 transition-all"
+                                 :class="isDragOverSlot(day, h) ? 'border-brand-400 bg-brand-500/10 text-brand-300' : ''">
+                                <i v-if="isDragOverSlot(day, h)" class="fa-solid fa-arrow-down-to-square text-brand-400 animate-bounce"></i>
+                                <span>{{ isDragOverSlot(day, h) ? 'Buraya Bırak' : t('empty') }}</span>
                             </div>
                         </td>
                     </tr>

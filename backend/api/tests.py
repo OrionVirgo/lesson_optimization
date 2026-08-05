@@ -105,3 +105,31 @@ class APIEndpointsTests(TestCase):
         response = self.client.post('/api/generate-schedule/')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Schedule.objects.count(), 1)
+
+    def test_ai_chat_api_endpoint(self):
+        response = self.client.post('/api/ai/chat/', {
+            'message': 'Sistemde kaç öğretmen var?'
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('reply', response.data)
+
+    def test_move_lesson_api_endpoint(self):
+        schedule = Schedule.objects.create(
+            school_class=self.school_class,
+            course=self.course,
+            teacher=self.teacher,
+            classroom=self.classroom,
+            time_slot=self.time_slot
+        )
+        target_slot = TimeSlot.objects.create(day="Tuesday", hour=2)
+
+        response = self.client.post('/api/schedules/move-lesson/', {
+            'schedule_id': schedule.id,
+            'target_day': 'Tuesday',
+            'target_hour': 2
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        schedule.refresh_from_db()
+        self.assertEqual(schedule.time_slot.id, target_slot.id)
+

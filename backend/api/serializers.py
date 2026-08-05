@@ -40,6 +40,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
 class TimeSlotSerializer(serializers.ModelSerializer):
     day_display = serializers.CharField(source='get_day_display', read_only=True)
+    time_range_str = serializers.CharField(read_only=True)
     
     class Meta:
         model = TimeSlot
@@ -61,6 +62,9 @@ class ScheduleSerializer(serializers.ModelSerializer):
     classroom_name = serializers.CharField(source='classroom.name', read_only=True)
     day = serializers.CharField(source='time_slot.day', read_only=True)
     hour = serializers.IntegerField(source='time_slot.hour', read_only=True)
+    time_range_str = serializers.CharField(source='time_slot.time_range_str', read_only=True)
+    start_time = serializers.TimeField(source='time_slot.start_time', read_only=True)
+    end_time = serializers.TimeField(source='time_slot.end_time', read_only=True)
     is_lab = serializers.BooleanField(source='classroom.is_lab', read_only=True)
 
     class Meta:

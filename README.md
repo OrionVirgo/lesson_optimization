@@ -1,24 +1,24 @@
-# 📅 Lesson Scheduling & Optimization System
+# 📅 Lesson Scheduling & Optimization System (OptiSchedule AI)
 
-Okul ve derslik bazlı ders programı oluşturmayı otomatikleştiren, çakışmasız (conflict-free) ders dağıtımı yapan modern bir web uygulaması.
+Okul ve derslik bazlı ders programı oluşturmayı otomatikleştiren, çakışmasız (conflict-free) ders dağıtımı yapan modern **Vue 3 + Vite + TypeScript** ve **Django REST Framework** tabanlı web uygulaması.
 
 ---
 
 ## 🚀 Özellikler
 
-- **🤖 Otomatik Optimizasyon Motoru**: Öğretmen müsaitliği, sınıf kontenjanları, derslik kapasitesi ve laboratuvar gereksinimlerine göre çakışmasız ders programı üretir.
+- **🤖 Otomatik Optimizasyon Motoru**: Öğretmen müsaitliği, sınıf kontenjanları, derslik kapasitesi ve laboratuvar gereksinimlerine göre çakışmasız ders programı üretir (`scheduler.py`).
+- **✨ Gemini AI Asistanı**: Doğal dilde soru sorma, boş derslik sorgulama, öğretmen yükü özeti ve çakışma analiz raporlama altyapısı (`ai_assistant.py`).
+- **🌐 Çoklu Dil Desteği (i18n)**: Türkçe ve İngilizce dil seçenekleri.
+- **🎨 Vue 3 & Vite & TypeScript**: Modern, reaktif, cam efekti (glassmorphic) koyu tema ve duyarlı (responsive) ön yüz.
 - **🔐 JWT Tabanlı Kimlik Doğrulama**: Güvenli oturum açma, jeton yenileme ve rol tabanlı koruma.
-- **🎨 Vue 3 & Tailwind CSS**: Kullanıcı dostu, modern, koyu tema destekli ve duyarlı (responsive) ön yüz.
-- **⚡ Axios Entegrasyonu**: Asenkron ve güvenli API veri iletişimi.
-- **📊 Yönetim Paneli**: Öğretmenler, Sınıflar, Derslikler, Dersler ve Ders Gereksinimlerinin yönetimi.
 - **🖨️ Yazdırma Desteği**: Haftalık ders programlarını çıktıya hazır formatta görüntüleme ve yazdırma.
 
 ---
 
 ## 🛠️ Teknolojiler
 
-- **Backend**: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, SQLite / PostgreSQL
-- **Frontend**: Vue 3 (Composition API), Axios, Tailwind CSS, FontAwesome
+- **Backend**: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, Google Gemini GenAI SDK, SQLite / PostgreSQL
+- **Frontend**: Vue 3 (Composition API), Vite, TypeScript, vue-i18n, Axios, Lucide Icons
 
 ---
 
@@ -27,85 +27,47 @@ Okul ve derslik bazlı ders programı oluşturmayı otomatikleştiren, çakışm
 ```
 lesson_optimization/
 ├── backend/
-│   ├── api/                  # Django REST API uygulaması (Modeller, Viewset'ler, Optimizasyon Motoru)
+│   ├── api/                  # Django REST API uygulaması (Modeller, Viewset'ler, Optimizasyon Motoru & AI)
 │   ├── config/               # Django proje ayarları ve URL yapılandırması
 │   └── manage.py
 ├── frontend/
-│   └── templates/            # Vue 3 SPA şablonları, bileşenleri (interface.html, DeleteModal vb.)
-├── .env.example              # Ortam değişkenleri şablonu
-├── .gitignore                # Git tarafından yoksayılacak dosyalar
+│   ├── src/                  # Vue 3 + TypeScript kaynak kodları (views, components, i18n, services)
+│   ├── package.json
+│   └── vite.config.ts
+├── package.json              # Ana proje scriptleri (Concurrent dev server)
 ├── requirements.txt          # Python bağımlılıkları
 └── README.md
 ```
 
 ---
 
-## 💻 Kurulum ve Çalıştırma
+## 💻 Kurulum ve Tek Komutla Çalıştırma
 
-### 1. Depoyu Klonlayın
+### 1. Bağımlılıkları Yükleyin
+
 ```bash
-git clone https://github.com/kullanici-adi/lesson_optimization.git
-cd lesson_optimization
-```
-
-### 2. Sanal Ortam Oluşturun ve Aktif Edin
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
-
-# Linux / macOS
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Bağımlılıkları Yükleyin
-```bash
+# Backend bağımlılıkları
 pip install -r requirements.txt
+
+# Frontend & Root bağımlılıkları
+npm install
+cd frontend && npm install && cd ..
 ```
 
-### 4. Ortam Değişkenlerini Ayarlayın
-`.env.example` dosyasını kopyalayarak `.env` dosyası oluşturun:
+### 2. Tek Komutla Başlatın (Backend + Frontend)
+
+Proje kök dizininde aşağıdaki komutu çalıştırmanız yeterlidir:
+
 ```bash
-# Windows (PowerShell)
-copy .env.example .env
-
-# Linux / macOS
-cp .env.example .env
+npm start
 ```
-
-### 5. Veritabanı Göçlerini Uygulayın
+veya
 ```bash
-cd backend
-python manage.py migrate
+npm run dev
 ```
 
-### 6. Süper Kullanıcı (Admin) Oluşturun
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Sunucuyu Başlatın
-```bash
-python manage.py runserver
-```
-
-Uygulama varsayılan olarak `http://127.0.0.1:8000/` adresinde çalışacaktır.
-
----
-
-## 📡 API Uç Noktaları (Endpoints)
-
-| Yöntem | Uç Nokta | Açıklama |
-|---|---|---|
-| `POST` | `/api/auth/login/` | Kullanıcı girişi ve JWT jeton alma |
-| `GET` | `/api/auth/me/` | Oturum açan kullanıcı bilgisi |
-| `GET / POST` | `/api/teachers/` | Öğretmen listeleme ve ekleme |
-| `GET / POST` | `/api/school-classes/` | Sınıf listeleme ve ekleme |
-| `GET / POST` | `/api/classrooms/` | Derslik listeleme ve ekleme |
-| `GET / POST` | `/api/courses/` | Ders listeleme ve ekleme |
-| `GET / POST` | `/api/course-requirements/` | Ders atama gereksinimleri |
-| `POST` | `/api/generate-schedule/` | Optimizasyon motorunu tetikleme |
+* **Frontend Arayüzü:** `http://localhost:5173`
+* **Backend REST API:** `http://127.0.0.1:8000/api/`
 
 ---
 

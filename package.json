@@ -1,0 +1,12 @@
+{
+  "name": "lesson-optimization-root",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,emerald\" \"python backend/manage.py runserver\" \"npm --prefix frontend run dev\"",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -9,7 +9,8 @@ from .views import (
     CourseRequirementViewSet,
     ScheduleViewSet,
     GenerateScheduleView,
-    schedule_interface
+    schedule_interface,
+    AIChatView
 )
 
 router = DefaultRouter()
@@ -24,6 +25,8 @@ router.register('schedules', ScheduleViewSet, basename='schedule')
 urlpatterns = [
     path('auth/', include('api.auth.urls')),
     path('generate-schedule/', GenerateScheduleView.as_view(), name='generate-schedule'),
+    path('ai/chat/', AIChatView.as_view(), name='ai-chat'),
+    path('ai-chat/', AIChatView.as_view(), name='ai-chat-direct'),
     path('schedule/view/', schedule_interface, name='schedule_interface'),
     path('', include(router.urls)),
 ]

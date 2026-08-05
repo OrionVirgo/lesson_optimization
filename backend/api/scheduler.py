@@ -1,7 +1,8 @@
+import time
 from .models import Schedule
 
 def is_teacher_available(teacher, time_slot, current_schedule):
-    if teacher.off_day == time_slot.day:
+    if teacher.off_day and teacher.off_day.lower() == time_slot.day.lower():
         return False
 
     for assignment in current_schedule:
@@ -26,7 +27,7 @@ def is_classroom_suitable_for_course(classroom, course):
     if course.is_lab_required:
         return classroom.is_lab
     else:
-        return not classroom.is_lab
+        return True
 
 
 def is_consecutive_limit_ok(school_class, course, time_slot, current_schedule):
@@ -43,7 +44,11 @@ def is_consecutive_limit_ok(school_class, course, time_slot, current_schedule):
     return True
 
 
-def solve(assignment_list, pending_course, classrooms, time_slots):
+def solve(assignment_list, pending_course, classrooms, time_slots, start_time, max_seconds=5.0):
+    # Timeout guard to prevent backend locks
+    if time.time() - start_time > max_seconds:
+        return None
+
     if not pending_course:
         return assignment_list
     
@@ -75,7 +80,7 @@ def solve(assignment_list, pending_course, classrooms, time_slots):
             )
             assignment_list.append(new_assignment)
 
-            result = solve(assignment_list, pending_course[1:], classrooms, time_slots)
+            result = solve(assignment_list, pending_course[1:], classrooms, time_slots, start_time, max_seconds)
 
             if result is not None:
                 return result
@@ -84,9 +89,17 @@ def solve(assignment_list, pending_course, classrooms, time_slots):
 
 
 def generate_schedule(raw_requirements, classrooms, time_slots):
+    # MRV (Minimum Remaining Values) sort: process lab-required and teacher-constrained courses first
+    sorted_reqs = sorted(
+        raw_requirements,
+        key=lambda r: (0 if r.course.is_lab_required else 1, 0 if r.teacher.off_day else 1, -r.weekly_hours)
+    )
+
     unpacked_pending_courses = []    
-    for req in raw_requirements:
+    for req in sorted_reqs:
         for _ in range(req.weekly_hours):
             unpacked_pending_courses.append(req)
         
-    return solve([], unpacked_pending_courses, classrooms, time_slots)
+    start_time = time.time()
+    return solve([], unpacked_pending_courses, classrooms, time_slots, start_time, max_seconds=5.0)
+

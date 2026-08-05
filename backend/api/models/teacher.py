@@ -32,3 +32,4 @@ class Teacher(BaseModel):
     def __str__(self):
         title_prefix = f"{self.academic_title} " if self.academic_title else ""
         return f"{title_prefix}{self.name}"
+ 

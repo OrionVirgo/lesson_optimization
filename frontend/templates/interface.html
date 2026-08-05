@@ -204,10 +204,125 @@
             </main>
 
             {% include 'includes/modals.html' %}
+
 {% verbatim %}
+            <!-- AI Assistant Floating Chat Widget -->
+            <div v-if="isLoggedIn" class="no-print">
+                <!-- FAB Button -->
+                <button @click="toggleAiChat" 
+                        class="fixed bottom-6 right-6 z-40 group flex items-center gap-3 px-4 py-3.5 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white shadow-2xl hover:shadow-purple-500/40 hover:scale-105 transition-all duration-300 border border-purple-400/30">
+                    <div class="relative">
+                        <i class="fa-solid fa-wand-magic-sparkles text-xl animate-pulse"></i>
+                        <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900"></span>
+                    </div>
+                    <span class="font-bold text-sm tracking-wide pr-1 hidden sm:inline">AI Asistan</span>
+                </button>
+
+                <!-- Floating Chat Drawer / Panel -->
+                <div v-if="showAiChat" 
+                     class="fixed bottom-24 right-6 w-[420px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[75vh] z-50 rounded-2xl glass-card border border-purple-500/40 shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+                    
+                    <!-- Header -->
+                    <div class="p-4 bg-gradient-to-r from-purple-900/80 via-slate-900/90 to-indigo-900/80 border-b border-purple-500/20 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/30">
+                                <i class="fa-solid fa-robot text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                                    Gemini AI Asistanı
+                                    <span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full font-mono">2.0 Flash</span>
+                                </h3>
+                                <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                    Canlı Veritabanı Entegrasyonu
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button @click="clearAiChat" title="Sohbeti Temizle" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/60 text-xs transition">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                            <button @click="showAiChat = false" title="Kapat" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/60 text-xs transition">
+                                <i class="fa-solid fa-xmark text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Body / Messages -->
+                    <div ref="aiChatContainer" class="flex-1 p-4 overflow-y-auto space-y-3 scrollbar-thin scrollbar-thumb-purple-900/40">
+                        <!-- Messages List -->
+                        <div v-for="(msg, index) in aiMessages" :key="index" 
+                             :class="['flex gap-3 text-xs sm:text-sm', msg.role === 'user' ? 'justify-end' : 'justify-start']">
+                            
+                            <!-- AI Avatar -->
+                            <div v-if="msg.role === 'assistant'" class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/40 flex-shrink-0 flex items-center justify-center text-purple-300">
+                                <i class="fa-solid fa-robot text-xs"></i>
+                            </div>
+
+                            <!-- Message Content -->
+                            <div :class="[
+                                'max-w-[82%] rounded-2xl px-4 py-2.5 leading-relaxed shadow-sm whitespace-pre-wrap',
+                                msg.role === 'user' 
+                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-none' 
+                                    : 'bg-slate-800/90 text-slate-200 border border-slate-700/60 rounded-bl-none font-sans'
+                            ]" v-html="formatAiMarkdown(msg.text)">
+                            </div>
+
+                            <!-- User Avatar -->
+                            <div v-if="msg.role === 'user'" class="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex-shrink-0 flex items-center justify-center text-indigo-300">
+                                <i class="fa-solid fa-user text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- Thinking / Loading Indicator -->
+                        <div v-if="aiLoading" class="flex gap-3 items-center text-xs text-purple-300">
+                            <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/40 flex-shrink-0 flex items-center justify-center text-purple-300 animate-pulse">
+                                <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                            </div>
+                            <div class="bg-slate-800/90 border border-slate-700/60 rounded-2xl px-4 py-2.5 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce"></span>
+                                <span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce delay-100"></span>
+                                <span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce delay-200"></span>
+                                <span class="text-xs text-slate-400 ml-1">Gemini analiz ediyor...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Suggestions (Chips) -->
+                    <div class="px-3 py-2 bg-slate-900/60 border-t border-slate-800/80 flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
+                        <button @click="sendAiSuggestion('Hangi öğretmenlerin bu hafta dersi az?')" 
+                                class="px-2.5 py-1 rounded-full bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap transition">
+                            📊 Sistem Özeti
+                        </button>
+                        <button @click="sendAiSuggestion('Cuma 3. saatte boş öğretmen ve sınıfları göster')" 
+                                class="px-2.5 py-1 rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 whitespace-nowrap transition">
+                            🕒 Kimler Boş?
+                        </button>
+                        <button @click="sendAiSuggestion('Sistemde olası bir çakışma veya eksik var mı?')" 
+                                class="px-2.5 py-1 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 whitespace-nowrap transition">
+                            ⚠️ Çakışma Analizi
+                        </button>
+                    </div>
+
+                    <!-- Input Box -->
+                    <form @submit.prevent="sendAiMessage()" class="p-3 bg-slate-900/90 border-t border-purple-500/20 flex gap-2">
+                        <input v-model="aiInput" 
+                               type="text" 
+                               placeholder="Soru veya komut yazın... (Örn: 10-A ders programı)" 
+                               :disabled="aiLoading"
+                               class="flex-1 bg-slate-800/80 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition disabled:opacity-50">
+                        <button type="submit" 
+                                :disabled="aiLoading || !aiInput.trim()" 
+                                class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-xs sm:text-sm shadow-md transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </template>
     </div>
-{% endverbatim %}
 
     <script>
         const { createApp, ref, reactive, computed, onMounted } = Vue;
@@ -250,6 +365,7 @@
                 </div>
             `
         };
+{% endverbatim %}
 
         const app = createApp({
             components: {
@@ -463,6 +579,16 @@
                 const filterTargetClass = ref('');
                 const toasts = ref([]);
 
+                const showTimeSlotConfig = ref(false);
+                const slotConfig = reactive({
+                    start_time: '08:30',
+                    lesson_duration: 40,
+                    break_duration: 10,
+                    lunch_after_hour: 4,
+                    lunch_duration: 50,
+                    hours_per_day: 8
+                });
+
                 const loginForm = reactive({ username: '', password: '' });
                 const loginError = ref('');
 
@@ -556,10 +682,25 @@
                             isLoggedIn.value = true;
                             loadAllData();
                             return;
-                        } catch (e) {}
+                        } catch (e) {
+                            // If token is invalid or expired, clear local storage and show login modal
+                            handleLogout(false);
+                            return;
+                        }
                     }
                     handleLogout(false);
                 };
+
+                // Automatic 401 Interceptor: Clear expired tokens if 401 occurs
+                axios.interceptors.response.use(
+                    response => response,
+                    error => {
+                        if (error.response && error.response.status === 401) {
+                            handleLogout(false);
+                        }
+                        return Promise.reject(error);
+                    }
+                );
 
                 const handleLogin = async () => {
                     loginError.value = '';
@@ -875,20 +1016,81 @@
                 };
 
                 const generateDefaultTimeSlots = async () => {
+                    showToast('Oluşturuluyor...', 'info');
                     try {
                         const config = { headers: getAuthHeaders() };
-                        for (let ts of state.timeslots) {
-                            await axios.delete(`${API_BASE}/time-slots/${ts.id}/`, config);
-                        }
-                        for (let day of dayKeys) {
-                            for (let hour = 1; hour <= 8; hour++) {
-                                await axios.post(`${API_BASE}/time-slots/`, { day, hour }, config);
-                            }
-                        }
-                        showToast('Generated 40 weekly time slots.', 'success');
+                        await axios.post(`${API_BASE}/time-slots/generate-default/`, slotConfig, config);
+                        showToast('Saatli zaman dilimleri başarıyla üretildi.', 'success');
+                        showTimeSlotConfig.value = false;
                         loadAllData();
                     } catch (e) {
-                        showToast('Failed to generate time slots.', 'error');
+                        showToast(parseError(e), 'error');
+                    }
+                };
+
+                const getTimeSlotTimeRange = (hourNum) => {
+                    const slot = state.timeslots.find(ts => ts.hour === hourNum && ts.time_range_str);
+                    return slot ? slot.time_range_str : '';
+                };
+
+                const draggedSchedule = ref(null);
+                const dragOverSlot = ref(null);
+
+                const handleDragStart = (e, schedule) => {
+                    draggedSchedule.value = schedule;
+                    if (e.dataTransfer) {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', schedule.id.toString());
+                    }
+                };
+
+                const handleDragEnd = () => {
+                    draggedSchedule.value = null;
+                    dragOverSlot.value = null;
+                };
+
+                const handleDragOver = (e, day, hour) => {
+                    if (draggedSchedule.value) {
+                        dragOverSlot.value = { day, hour };
+                    }
+                };
+
+                const handleDragLeave = (e) => {
+                    dragOverSlot.value = null;
+                };
+
+                const isDragOverSlot = (day, hour) => {
+                    return dragOverSlot.value && dragOverSlot.value.day === day && dragOverSlot.value.hour === hour;
+                };
+
+                const handleDrop = async (e, targetDay, targetHour) => {
+                    dragOverSlot.value = null;
+                    if (!draggedSchedule.value) return;
+
+                    const scheduleId = draggedSchedule.value.id;
+                    const currentDay = draggedSchedule.value.day;
+                    const currentHour = draggedSchedule.value.hour;
+
+                    if (currentDay === targetDay && currentHour === targetHour) {
+                        draggedSchedule.value = null;
+                        return;
+                    }
+
+                    showToast('Ders saati taşınıyor...', 'info');
+                    try {
+                        const res = await axios.post(`${API_BASE}/schedules/move-lesson/`, {
+                            schedule_id: scheduleId,
+                            target_day: targetDay,
+                            target_hour: targetHour
+                        }, { headers: getAuthHeaders() });
+
+                        state.schedules = res.data.schedule;
+                        showToast(res.data.message || 'Ders taşıma başarılı!', 'success');
+                    } catch (err) {
+                        const errorMsg = err.response?.data?.error || 'Ders taşıma yapılamadı.';
+                        showToast(errorMsg, 'error');
+                    } finally {
+                        draggedSchedule.value = null;
                     }
                 };
 
@@ -963,6 +1165,95 @@
 
                 const printWindow = () => window.print();
 
+                // AI Assistant State & Methods
+                const showAiChat = ref(false);
+                const aiInput = ref('');
+                const aiLoading = ref(false);
+                const aiChatContainer = ref(null);
+                const aiMessages = ref([
+                    {
+                        role: 'assistant',
+                        text: '👋 **Merhaba!** Ben ders programı optimizasyon asistanınız.\nÖğretmen müsaitlikleri, sınıf programları, çakışma analizleri veya derslik bilgileri hakkında soru sorabilirsiniz.'
+                    }
+                ]);
+
+                const toggleAiChat = () => {
+                    showAiChat.value = !showAiChat.value;
+                    if (showAiChat.value) {
+                        scrollAiChatToBottom();
+                    }
+                };
+
+                const clearAiChat = () => {
+                    aiMessages.value = [
+                        {
+                            role: 'assistant',
+                            text: 'Sohbet geçmişi temizlendi. Nasıl yardımcı olabilirim?'
+                        }
+                    ];
+                };
+
+                const scrollAiChatToBottom = () => {
+                    setTimeout(() => {
+                        if (aiChatContainer.value) {
+                            aiChatContainer.value.scrollTop = aiChatContainer.value.scrollHeight;
+                        }
+                    }, 50);
+                };
+
+                const formatAiMarkdown = (text) => {
+                    if (!text) return '';
+                    let formatted = text
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/`([^`]+)`/g, '<code class="bg-purple-950/60 text-purple-300 px-1.5 py-0.5 rounded border border-purple-800/40 text-xs font-mono">$1</code>');
+                    return formatted;
+                };
+
+                const sendAiSuggestion = (suggestionText) => {
+                    aiInput.value = suggestionText;
+                    sendAiMessage();
+                };
+
+                const sendAiMessage = async () => {
+                    const msg = aiInput.value ? aiInput.value.trim() : '';
+                    if (!msg || aiLoading.value) return;
+
+                    aiMessages.value.push({ role: 'user', text: msg });
+                    aiInput.value = '';
+                    aiLoading.value = true;
+                    scrollAiChatToBottom();
+
+                    try {
+                        const historyForBackend = aiMessages.value.slice(-6).map(m => ({
+                            role: m.role,
+                            text: m.text
+                        }));
+
+                        const res = await axios.post(`${API_BASE}/ai/chat/`, {
+                            message: msg,
+                            history: historyForBackend
+                        }, { headers: getAuthHeaders() });
+
+                        aiMessages.value.push({
+                            role: 'assistant',
+                            text: res.data.reply || 'Yanıt alınamadı.'
+                        });
+                    } catch (err) {
+                        const errorMsg = err.response?.data?.error || err.message || 'Sunucu ile bağlantı kurulamadı.';
+                        aiMessages.value.push({
+                            role: 'assistant',
+                            text: `⚠️ **Hata**: ${errorMsg}`
+                        });
+                    } finally {
+                        aiLoading.value = false;
+                        scrollAiChatToBottom();
+                    }
+                };
+
                 onMounted(() => {
                     checkAuth();
                 });
@@ -992,9 +1283,7 @@
                     formReq,
                     isEditReq,
                     editRequirement,
-                    deleteModalConfig,
                     confirmDelete,
-                    executeConfirmedDelete,
                     dayKeys,
                     handleLogin,
                     handleLogout,
@@ -1008,17 +1297,39 @@
                     showDeleteModal,
                     deleteTarget,
                     handleConfirmDelete,
-                    confirmDelete,
                     generateDefaultTimeSlots,
                     generateSchedule,
                     getTimeSlotsForDay,
                     getScheduleSlot,
+                    getTimeSlotTimeRange,
+                    showTimeSlotConfig,
+                    slotConfig,
                     scheduleStatsText,
                     tabBtnClass,
                     printWindow,
                     currentLang,
                     setLanguage,
-                    t
+                    t,
+                    // Drag & Drop exports
+                    draggedSchedule,
+                    dragOverSlot,
+                    handleDragStart,
+                    handleDragEnd,
+                    handleDragOver,
+                    handleDragLeave,
+                    isDragOverSlot,
+                    handleDrop,
+                    // AI Assistant exports
+                    showAiChat,
+                    aiInput,
+                    aiLoading,
+                    aiMessages,
+                    aiChatContainer,
+                    toggleAiChat,
+                    clearAiChat,
+                    sendAiMessage,
+                    sendAiSuggestion,
+                    formatAiMarkdown
                 };
 
 
